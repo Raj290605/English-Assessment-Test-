@@ -1,0 +1,26 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@layer base {
+  body {
+    @apply bg-slate-900 text-slate-100 font-sans antialiased min-h-screen selection:bg-blue-500 selection:text-white;
+  }
+}
+
+.glass-panel {
+  @apply bg-slate-800/80 backdrop-blur-xl border border-slate-700/60 shadow-xl rounded-2xl;
+}
+
+.glass-card {
+  @apply bg-slate-800/50 backdrop-blur-md border border-slate-700/40 rounded-xl p-6 transition-all duration-200 hover:border-slate-600/60;
+}
+
+@keyframes pulse-red {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.15); }
+}
+
+.animate-recording {
+  animation: pulse-red 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

@@ -1,0 +1,123 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum AssessmentStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  SUBMITTED
+  EVALUATED
+}
+
+enum QuestionResponseStatus {
+  DRAFT
+  UPLOADED
+  SAVED
+}
+
+model User {
+  id           String               @id @default(uuid())
+  studentId    String               @unique
+  name         String
+  passwordHash String
+  role         Role                 @default(STUDENT)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  assessments  Assessment[]
+  evaluations  OverallEvaluation[]  @relation("AdminEvaluations")
+
+  @@map("users")
+}
+
+model Question {
+  id             String             @id @default(uuid())
+  questionNumber Int                @unique
+  promptText     String
+  category       String?
+  timeLimitSec   Int                @default(120)
+  createdAt      DateTime           @default(now())
+  responses      QuestionResponse[]
+
+  @@map("questions")
+}
+
+model Assessment {
+  id          String             @id @default(uuid())
+  studentId   String
+  student     User               @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  status      AssessmentStatus   @default(NOT_STARTED)
+  startedAt   DateTime           @default(now())
+  submittedAt DateTime?
+  responses   QuestionResponse[]
+  evaluation  OverallEvaluation?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@map("assessments")
+}
+
+model QuestionResponse {
+  id                 String                 @id @default(uuid())
+  assessmentId       String
+  assessment         Assessment             @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  questionId         String
+  question           Question               @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionNumber     Int
+  status             QuestionResponseStatus @default(UPLOADED)
+  cloudinaryPublicId String
+  cloudinaryUrl      String
+  durationSeconds    Int                    @default(0)
+  submissionTimestamp DateTime              @default(now())
+  feedback           QuestionFeedback?
+
+  @@unique([assessmentId, questionId])
+  @@map("question_responses")
+}
+
+model QuestionFeedback {
+  id                 String           @id @default(uuid())
+  responseId         String           @unique
+  response           QuestionResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  remarks            String
+  strengths          String?
+  needsImprovement   String?
+  score              Float?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  @@map("question_feedbacks")
+}
+
+model OverallEvaluation {
+  id                   String     @id @default(uuid())
+  assessmentId         String     @unique
+  assessment           Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  adminId              String
+  admin                User       @relation("AdminEvaluations", fields: [adminId], references: [id])
+  
+  fluencyScore         Int
+  grammarScore         Int
+  pronunciationScore   Int
+  vocabularyScore      Int
+  confidenceScore      Int
+  overallScore         Float?
+
+  overallRemarks       String
+  strengths            String
+  areasForImprovement  String
+  
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+
+  @@map("overall_evaluations")
+}
