@@ -4,16 +4,16 @@
 
 @layer base {
   body {
-    @apply bg-slate-900 text-slate-100 font-sans antialiased min-h-screen selection:bg-blue-500 selection:text-white;
+    @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 font-sans antialiased min-h-screen selection:bg-blue-500 selection:text-white transition-colors duration-200;
   }
 }
 
 .glass-panel {
-  @apply bg-slate-800/80 backdrop-blur-xl border border-slate-700/60 shadow-xl rounded-2xl;
+  @apply bg-white/90 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 shadow-xl rounded-2xl transition-colors duration-200;
 }
 
 .glass-card {
-  @apply bg-slate-800/50 backdrop-blur-md border border-slate-700/40 rounded-xl p-6 transition-all duration-200 hover:border-slate-600/60;
+  @apply bg-white/80 dark:bg-slate-900/50 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-xl p-6 transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-700;
 }
 
 @keyframes pulse-red {
