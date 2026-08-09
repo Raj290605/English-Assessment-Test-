@@ -143,7 +143,7 @@ export default async function StudentDashboardPage() {
               </li>
             </ul>
 
-            <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-start gap-2">
+            <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-300 text-xs flex items-start gap-2">
               <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
               <span>Do not refresh or close tab while active recording or upload is in progress.</span>
             </div>

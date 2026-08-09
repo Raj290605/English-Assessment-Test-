@@ -19,11 +19,7 @@ export function Navbar({ user }: NavbarProps) {
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
-    if (user?.role === 'ADMIN') {
-      router.push('/admin-login');
-    } else {
-      router.push('/login');
-    }
+    router.push('/');
     router.refresh();
   };
 
