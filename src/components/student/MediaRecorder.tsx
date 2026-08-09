@@ -52,16 +52,25 @@ export function MediaRecorderComponent({
     }
   };
 
+  // 1. Initialize camera when the question loads
   useEffect(() => {
     if (status !== 'SAVED') {
       initMediaStream();
     }
 
+    // ONLY clean up when moving to a new question or leaving the page
     return () => {
       stopMediaTracks();
       if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
     };
-  }, [questionNumber, status]);
+  }, [questionNumber]);
+
+  // 2. Shut off the camera only when the upload is totally finished
+  useEffect(() => {
+    if (status === 'SAVED') {
+      stopMediaTracks();
+    }
+  }, [status]);
 
   const stopMediaTracks = () => {
     if (mediaStreamRef.current) {
@@ -83,11 +92,12 @@ export function MediaRecorderComponent({
     if (!mediaStreamRef.current) return;
 
     try {
+      // Changed fallback to empty string to prevent browser format crashes
       const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')
         ? 'video/webm;codecs=vp9,opus'
         : MediaRecorder.isTypeSupported('video/webm')
-        ? 'video/webm'
-        : 'video/mp4';
+          ? 'video/webm'
+          : '';
 
       const recorder = new MediaRecorder(mediaStreamRef.current, { mimeType });
       mediaRecorderRef.current = recorder;
