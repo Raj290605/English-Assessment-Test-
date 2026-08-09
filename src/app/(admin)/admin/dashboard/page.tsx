@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/common/Navbar';
-import { ShieldCheck, Search, Filter, CheckCircle2, Clock, Award, ArrowRight, UserCheck, UserPlus } from 'lucide-react';
+import { ShieldCheck, Search, Filter, CheckCircle2, Clock, Award, ArrowRight, UserCheck, UserPlus, Trash2 } from 'lucide-react';
 import { CreateStudentModal } from '@/components/admin/CreateStudentModal';
 
 interface StudentListItem {
@@ -49,6 +49,29 @@ export default function AdminDashboardPage() {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteStudent = async (studentId: string, studentName: string) => {
+    if (!window.confirm(`Are you sure you want to delete the record for ${studentName}? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/admin/students/${studentId}`, {
+        method: 'DELETE',
+      });
+      
+      const data = await res.json();
+      if (res.ok) {
+        // Remove student from the list locally to avoid reloading the whole page
+        setStudents((prev) => prev.filter((s) => s.id !== studentId));
+      } else {
+        alert(data.error || 'Failed to delete student.');
+      }
+    } catch (err) {
+      console.error('Error deleting student:', err);
+      alert('An unexpected error occurred while deleting the student.');
     }
   };
 
@@ -217,13 +240,22 @@ export default function AdminDashboardPage() {
                         )}
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <Link
-                          href={`/admin/students/${s.id}`}
-                          className="inline-flex items-center gap-1.5 py-2 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 text-emerald-600 dark:text-emerald-400 font-semibold rounded-xl border border-slate-300 dark:border-slate-700 hover:border-emerald-500 text-xs transition-all"
-                        >
-                          Review & Grade
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleDeleteStudent(s.id, s.name)}
+                            className="inline-flex items-center gap-1.5 py-2 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-red-600 hover:text-white dark:hover:bg-red-600 text-red-600 dark:text-red-400 font-semibold rounded-xl border border-slate-300 dark:border-slate-700 hover:border-red-500 text-xs transition-all shadow-sm hover:shadow-red-500/20"
+                            title="Delete Student Record"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                          <Link
+                            href={`/admin/students/${s.id}`}
+                            className="inline-flex items-center gap-1.5 py-2 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 text-emerald-600 dark:text-emerald-400 font-semibold rounded-xl border border-slate-300 dark:border-slate-700 hover:border-emerald-500 text-xs transition-all shadow-sm hover:shadow-emerald-500/20"
+                          >
+                            Review & Grade
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   ))
