@@ -38,11 +38,6 @@ export default function StudentLoginPage() {
     }
   };
 
-  const setDemoCredentials = (id: string) => {
-    setStudentId(id);
-    setPassword('student123');
-  };
-
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center p-4">
       <div className="max-w-md w-full glass-panel p-8 relative">
@@ -76,7 +71,7 @@ export default function StudentLoginPage() {
                 required
                 value={studentId}
                 onChange={(e) => setStudentId(e.target.value)}
-                placeholder="e.g. STU101"
+                placeholder="Enter Student ID"
                 className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-slate-900/90 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
               />
             </div>
@@ -108,28 +103,6 @@ export default function StudentLoginPage() {
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
-
-        <div className="mt-8 pt-6 border-t border-slate-800">
-          <p className="text-xs font-semibold text-slate-400 mb-2">Demo Student Credentials:</p>
-          <div className="flex flex-wrap gap-2">
-            {['STU101', 'STU102', 'STU103'].map((id) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setDemoCredentials(id)}
-                className="text-xs px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors"
-              >
-                {id} (pass: student123)
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="mt-6 text-center">
-          <Link href="/admin-login" className="text-xs text-slate-400 hover:text-blue-400 underline transition-colors">
-            Are you an Evaluator / Admin? Log in here
-          </Link>
-        </div>
       </div>
     </div>
   );

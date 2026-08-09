@@ -7,7 +7,7 @@ import { ShieldCheck, ArrowRight, Lock, User, AlertCircle } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [studentId, setStudentId] = useState('admin');
+  const [studentId, setStudentId] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -75,7 +75,7 @@ export default function AdminLoginPage() {
                 required
                 value={studentId}
                 onChange={(e) => setStudentId(e.target.value)}
-                placeholder="admin"
+                placeholder="Enter Admin ID"
                 className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-slate-900/90 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
               />
             </div>
@@ -107,21 +107,6 @@ export default function AdminLoginPage() {
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
-
-        <div className="mt-8 pt-6 border-t border-slate-800 text-center">
-          <button
-            type="button"
-            onClick={() => setPassword('admin123')}
-            className="text-xs px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors"
-          >
-            Fill Demo Admin Password (admin123)
-          </button>
-          <div className="mt-4">
-            <Link href="/login" className="text-xs text-slate-400 hover:text-emerald-400 underline transition-colors">
-              Student portal login
-            </Link>
-          </div>
-        </div>
       </div>
     </div>
   );
