@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/common/Navbar';
-import { ShieldCheck, Search, Filter, CheckCircle2, Clock, Award, ArrowRight, UserCheck } from 'lucide-react';
+import { ShieldCheck, Search, Filter, CheckCircle2, Clock, Award, ArrowRight, UserCheck, UserPlus } from 'lucide-react';
+import { CreateStudentModal } from '@/components/admin/CreateStudentModal';
 
 interface StudentListItem {
   id: string;
@@ -27,6 +28,7 @@ export default function AdminDashboardPage() {
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
   const [loading, setLoading] = useState(true);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const loadAdminData = async () => {
     try {
@@ -98,7 +100,14 @@ export default function AdminDashboardPage() {
               </p>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
+              <button
+                onClick={() => setIsCreateModalOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition-all shadow-lg shadow-emerald-600/20 border border-emerald-500/30 shrink-0"
+              >
+                <UserPlus className="w-4 h-4" />
+                Add New Student
+              </button>
               <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 text-center">
                 <span className="text-xs text-slate-400 block font-medium">Total Candidates</span>
                 <span className="text-2xl font-black text-slate-100 font-mono">{students.length}</span>
@@ -224,6 +233,12 @@ export default function AdminDashboardPage() {
           </div>
         </div>
       </main>
+
+      <CreateStudentModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={loadAdminData}
+      />
     </div>
   );
 }
