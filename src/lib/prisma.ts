@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 
 function getDatabaseUrl(): string {
-  if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+  if (process.env.VERCEL) {
     const tmpDbPath = '/tmp/dev.db';
     const sourceDbPath = path.join(process.cwd(), 'prisma', 'dev.db');
 
@@ -19,7 +19,8 @@ function getDatabaseUrl(): string {
     return `file:${tmpDbPath}`;
   }
 
-  return process.env.DATABASE_URL || 'file:./dev.db';
+  const dbPath = path.join(process.cwd(), 'prisma', 'dev.db');
+  return `file:${dbPath}`;
 }
 
 const globalForPrisma = globalThis as unknown as {

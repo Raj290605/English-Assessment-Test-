@@ -12,10 +12,22 @@ export default async function StudentDashboardPage() {
     redirect('/login');
   }
 
-  const { assessment, questions } = await getStudentAssessmentDetails(session.id);
-  const totalQuestions = questions.length;
-  const answeredCount = assessment.responses.length;
-  const isSubmitted = assessment.status === 'SUBMITTED' || assessment.status === 'EVALUATED';
+  let assessmentDetails: { assessment: any; questions: any[] } = {
+    assessment: { status: 'NOT_STARTED', responses: [] },
+    questions: [],
+  };
+
+  try {
+    assessmentDetails = await getStudentAssessmentDetails(session.id);
+  } catch (err) {
+    console.error('Failed to load assessment details:', err);
+  }
+
+  const { assessment, questions } = assessmentDetails;
+  const totalQuestions = questions && questions.length > 0 ? questions.length : 25;
+  const answeredCount = assessment?.responses ? assessment.responses.length : 0;
+  const status = assessment?.status || 'NOT_STARTED';
+  const isSubmitted = status === 'SUBMITTED' || status === 'EVALUATED';
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col">
@@ -40,16 +52,16 @@ export default async function StudentDashboardPage() {
 
             <div className="flex items-center gap-3">
               <span className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 ${
-                assessment.status === 'EVALUATED'
+                status === 'EVALUATED'
                   ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
                   : isSubmitted
                   ? 'bg-blue-500/10 text-blue-400 border border-blue-500/30'
-                  : assessment.status === 'IN_PROGRESS'
+                  : status === 'IN_PROGRESS'
                   ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
                   : 'bg-slate-800 text-slate-400 border border-slate-700'
               }`}>
                 {isSubmitted ? <CheckCircle2 className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
-                Status: {assessment.status.replace('_', ' ')}
+                Status: {status.replace('_', ' ')}
               </span>
             </div>
           </div>
