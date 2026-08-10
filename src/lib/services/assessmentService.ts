@@ -121,10 +121,10 @@ export async function submitAssessment(assessmentId: string, studentId: string) 
 
   if (!assessment) throw new Error('Assessment not found');
   
-  // Verify all 25 responses are uploaded
+  // Verify all 20 responses are uploaded
   const responseCount = assessment.responses.length;
-  if (responseCount < 25) {
-    throw new Error(`Cannot submit assessment: Only ${responseCount} of 25 questions have been answered.`);
+  if (responseCount < 20) {
+    throw new Error(`Cannot submit assessment: Only ${responseCount} of 20 questions have been answered.`);
   }
 
   return prisma.assessment.update({

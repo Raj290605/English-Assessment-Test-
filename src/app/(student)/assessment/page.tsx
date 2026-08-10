@@ -64,7 +64,7 @@ export default function AssessmentWizardPage() {
 
       // Set current question index to first unanswered question
       const answeredCount = ass.responses ? ass.responses.length : 0;
-      if (answeredCount > 0 && answeredCount < 25) {
+      if (answeredCount > 0 && answeredCount < 20) {
         setCurrentIndex(answeredCount);
       }
     } catch (err: any) {
@@ -102,7 +102,7 @@ export default function AssessmentWizardPage() {
   const currentQuestion = questions[currentIndex];
   const isCurrentAnswered = currentQuestion ? Boolean(responsesMap[currentQuestion.id]) : false;
   const totalAnswered = Object.keys(responsesMap).length;
-  const isAllAnswered = totalAnswered === 25;
+  const isAllAnswered = totalAnswered === 20;
 
   const handleResponseSaved = () => {
     fetchAssessmentData();
@@ -145,7 +145,7 @@ export default function AssessmentWizardPage() {
               Question {currentIndex + 1} of {questions.length}
             </span>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-              Progress: <span className="text-blue-600 dark:text-blue-400 font-mono">{totalAnswered}</span> / 25 Answered
+              Progress: <span className="text-blue-600 dark:text-blue-400 font-mono">{totalAnswered}</span> / 20 Answered
             </h2>
           </div>
 
@@ -271,7 +271,7 @@ export default function AssessmentWizardPage() {
               Submit Complete Assessment?
             </h3>
             <p className="text-slate-600 dark:text-slate-300 text-sm">
-              You have answered all 25 assessment questions. Once submitted, your video recordings will be locked for evaluator review and grading.
+              You have answered all 20 assessment questions. Once submitted, your video recordings will be locked for evaluator review and grading.
             </p>
 
             <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">

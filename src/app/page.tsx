@@ -36,7 +36,7 @@ export default async function HomePage() {
             English Assessment Platform
           </h1>
           <p className="mt-4 text-slate-600 dark:text-slate-400 text-lg">
-            Professional 25-question video speaking evaluation portal for students and evaluators.
+            Professional 20-question video speaking evaluation portal for students and evaluators.
           </p>
         </div>
 
@@ -65,7 +65,7 @@ export default async function HomePage() {
         </div>
 
         <div className="pt-6 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-500 font-mono">
-          Secure Cloudinary Private Media &bull; Next.js 14 &bull; 25-Question Rubric
+          Secure Cloudinary Private Media &bull; Next.js 14 &bull; 20-Question Rubric
         </div>
       </div>
     </div>

@@ -54,7 +54,7 @@ export default function StudentLoginPage() {
 
         <h2 className="text-2xl font-bold text-center text-slate-900 dark:text-white tracking-tight">Student Assessment Portal</h2>
         <p className="text-slate-500 dark:text-slate-400 text-center text-sm mt-1 mb-6">
-          Log in with your Student ID to start or continue your 25-question speaking assessment
+          Log in with your Student ID to start or continue your 20-question speaking assessment
         </p>
 
         {error && (

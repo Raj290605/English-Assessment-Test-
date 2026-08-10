@@ -119,7 +119,7 @@ export default function AdminDashboardPage() {
                 Admin Evaluation Dashboard
               </h1>
               <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-                Review student 25-question speaking recordings, enter question remarks, and evaluate scoring rubrics.
+                Review student 20-question speaking recordings, enter question remarks, and evaluate scoring rubrics.
               </p>
             </div>
 
@@ -225,7 +225,7 @@ export default function AdminDashboardPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 font-mono font-bold text-slate-800 dark:text-slate-200">
-                        {s.responsesCount} / 25
+                        {s.responsesCount} / 20
                       </td>
                       <td className="px-6 py-4 text-xs text-slate-500 dark:text-slate-400">
                         {s.submittedAt ? new Date(s.submittedAt).toLocaleDateString() : '—'}

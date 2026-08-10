@@ -38,16 +38,34 @@ export function MediaRecorderComponent({
   const initMediaStream = async () => {
     try {
       if (mediaStreamRef.current) return;
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 1280 }, height: { ideal: 720 } },
-        audio: true,
-      });
+      let stream: MediaStream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: true,
+        });
+      } catch (firstErr) {
+        // Fallback to basic constraints if specific resolution constraints fail
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true,
+        });
+      }
       mediaStreamRef.current = stream;
       if (liveVideoRef.current) {
         liveVideoRef.current.srcObject = stream;
       }
     } catch (err: any) {
-      setErrorMessage('Camera or Microphone access denied. Please grant browser permissions.');
+      console.error('MediaStream error:', err);
+      let msg = `Camera/Microphone Error (${err.name || 'Unknown'}): ${err.message || 'Access failed'}`;
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        msg = 'Camera or Microphone access denied. Please check your browser permission settings and Windows Privacy Settings.';
+      } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+        msg = 'Camera or Microphone is currently in use by another application (e.g., Zoom, Teams, Google Meet, or another browser tab). Please close other apps using the camera and refresh.';
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        msg = 'No camera or microphone found on your device. Please connect a camera/microphone and refresh.';
+      }
+      setErrorMessage(msg);
       setStatus('ERROR');
     }
   };
@@ -354,6 +372,20 @@ export function MediaRecorderComponent({
               </button>
             )}
           </div>
+        )}
+
+        {status === 'ERROR' && (
+          <button
+            onClick={() => {
+              setErrorMessage('');
+              setStatus('IDLE');
+              initMediaStream();
+            }}
+            className="w-full sm:w-auto py-3 px-6 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 transition-all"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Retry Camera & Microphone Connection
+          </button>
         )}
       </div>
     </div>

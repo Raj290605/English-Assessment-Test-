@@ -225,7 +225,7 @@ export default function StudentReviewPage() {
           </div>
         )}
 
-        {/* 25 Question Navigator Bar */}
+        {/* 20 Question Navigator Bar */}
         <div className="glass-panel p-4 overflow-x-auto">
           <div className="flex items-center gap-1.5 min-w-max">
             {questions.map((q, idx) => {
@@ -466,7 +466,7 @@ export default function StudentReviewPage() {
                   rows={4}
                   value={overallStrengths}
                   onChange={(e) => setOverallStrengths(e.target.value)}
-                  placeholder="Key strengths observed throughout the 25 questions..."
+                  placeholder="Key strengths observed throughout the 20 questions..."
                   className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500 transition-colors"
                 />
               </div>

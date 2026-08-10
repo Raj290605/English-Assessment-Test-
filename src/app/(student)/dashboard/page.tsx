@@ -24,7 +24,7 @@ export default async function StudentDashboardPage() {
   }
 
   const { assessment, questions } = assessmentDetails;
-  const totalQuestions = questions && questions.length > 0 ? questions.length : 25;
+  const totalQuestions = questions && questions.length > 0 ? questions.length : 20;
   const answeredCount = assessment?.responses ? assessment.responses.length : 0;
   const status = assessment?.status || 'NOT_STARTED';
   const isSubmitted = status === 'SUBMITTED' || status === 'EVALUATED';
@@ -73,7 +73,7 @@ export default async function StudentDashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">Assessment Progress</h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">25 Spoken Response Questions</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">20 Spoken Response Questions</p>
               </div>
               <span className="text-2xl font-black text-blue-600 dark:text-blue-400 font-mono">
                 {answeredCount} / {totalQuestions}
@@ -112,7 +112,7 @@ export default async function StudentDashboardPage() {
                 <CheckCircle2 className="w-6 h-6 shrink-0 text-blue-500 dark:text-blue-400" />
                 <div>
                   <span className="font-semibold block">Assessment Complete</span>
-                  Your 25 video responses have been submitted securely for evaluator grading.
+                  Your 20 video responses have been submitted securely for evaluator grading.
                 </div>
               </div>
             )}
@@ -139,7 +139,7 @@ export default async function StudentDashboardPage() {
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-800 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold shrink-0 mt-0.5">4</span>
-                Your progress is auto-saved. Complete all 25 questions to submit.
+                Your progress is auto-saved. Complete all 20 questions to submit.
               </li>
             </ul>
 
