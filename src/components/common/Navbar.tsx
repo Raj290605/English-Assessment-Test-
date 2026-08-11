@@ -51,11 +51,10 @@ export function Navbar({ user }: NavbarProps) {
                   <span className="font-semibold text-slate-800 dark:text-slate-200">{user.name}</span>
                   <span className="text-slate-500 dark:text-slate-400 ml-1.5 font-mono">({user.studentId})</span>
                 </div>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ${
-                  user.role === 'ADMIN'
+                <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ${user.role === 'ADMIN'
                     ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
                     : 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20'
-                }`}>
+                  }`}>
                   {user.role}
                 </span>
               </div>

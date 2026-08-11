@@ -7,11 +7,19 @@ import { Navbar } from '@/components/common/Navbar';
 import { Mic, CheckCircle2, Play, Clock, Video, ShieldAlert, Award, History } from 'lucide-react';
 import { ReattemptButton } from '@/components/student/ReattemptButton';
 
-export default async function StudentDashboardPage() {
+export default async function StudentDashboardPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const session = await getSession();
   if (!session || session.role !== 'STUDENT') {
     redirect('/login');
   }
+
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const assessmentIdParam = resolvedSearchParams?.assessmentId;
+  const assessmentId = Array.isArray(assessmentIdParam) ? assessmentIdParam[0] : assessmentIdParam || null;
 
   let assessmentDetails: { assessment: any; assessments: any[]; questions: any[] } = {
     assessment: { status: 'NOT_STARTED', responses: [] },
@@ -20,7 +28,7 @@ export default async function StudentDashboardPage() {
   };
 
   try {
-    assessmentDetails = await getStudentAssessmentDetails(session.id);
+    assessmentDetails = await getStudentAssessmentDetails(session.id, assessmentId);
   } catch (err) {
     console.error('Failed to load assessment details:', err);
   }
@@ -75,7 +83,7 @@ export default async function StudentDashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">Assessment Progress</h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">20 Spoken Response Questions</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Attempt {assessment?.attemptNumber || 1}</p>
               </div>
               <span className="text-2xl font-black text-blue-600 dark:text-blue-400 font-mono">
                 {answeredCount} / {totalQuestions}
@@ -97,13 +105,13 @@ export default async function StudentDashboardPage() {
               </div>
               <div className="p-3 rounded-lg bg-slate-100/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
                 <span className="text-xs text-slate-500 dark:text-slate-400 block">Questions Remaining</span>
-                <span className="text-lg font-bold text-slate-800 dark:text-slate-200">{totalQuestions - answeredCount} questions</span>
+                <span className="text-lg font-bold text-slate-800 dark:text-slate-200">{Math.max(0, totalQuestions - answeredCount)} questions</span>
               </div>
             </div>
 
             {!isSubmitted ? (
               <Link
-                href="/assessment"
+                href={`/assessment${assessmentId ? `?assessmentId=${assessmentId}` : ''}`}
                 className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-blue-600/25 flex items-center justify-center gap-3 transition-all hover:scale-[1.01]"
               >
                 <Play className="w-5 h-5 fill-current" />
@@ -118,7 +126,8 @@ export default async function StudentDashboardPage() {
                     Your video responses have been submitted securely for evaluator grading.
                   </div>
                 </div>
-                <ReattemptButton />
+                {/* Only show reattempt on the latest attempt */}
+                {assessments[0]?.id === assessment?.id && <ReattemptButton />}
               </>
             )}
           </div>
@@ -155,6 +164,118 @@ export default async function StudentDashboardPage() {
           </div>
         </div>
 
+        {/* Evaluation Results Section */}
+        {assessment?.evaluation && status === 'EVALUATED' && (
+          <div className="glass-panel p-6 space-y-6 bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-500/20">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
+              <div>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Award className="w-6 h-6 text-emerald-500" />
+                  Evaluation Results
+                </h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                  Scores and feedback for Attempt {assessment.attemptNumber}
+                </p>
+              </div>
+              <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-800/50 shadow-sm text-center">
+                <span className="text-xs text-slate-500 dark:text-slate-400 block font-bold uppercase tracking-wider mb-1">Overall Score</span>
+                <span className="text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
+                  {assessment.evaluation.overallScore} <span className="text-lg text-slate-400">/ 10</span>
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              {[
+                { label: 'Fluency', score: assessment.evaluation.fluencyScore },
+                { label: 'Grammar', score: assessment.evaluation.grammarScore },
+                { label: 'Pronunciation', score: assessment.evaluation.pronunciationScore },
+                { label: 'Vocabulary', score: assessment.evaluation.vocabularyScore },
+                { label: 'Confidence', score: assessment.evaluation.confidenceScore },
+              ].map((metric) => (
+                <div key={metric.label} className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
+                  <span className="text-xs text-slate-500 dark:text-slate-400 block mb-1">{metric.label}</span>
+                  <span className="text-xl font-bold text-slate-800 dark:text-slate-200 font-mono">{metric.score}/10</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+              <div className="space-y-2">
+                <h3 className="text-sm font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4" /> Strengths
+                </h3>
+                <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 text-slate-700 dark:text-slate-300 text-sm whitespace-pre-wrap leading-relaxed">
+                  {assessment.evaluation.strengths || 'No specific strengths recorded.'}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-sm font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                  <ShieldAlert className="w-4 h-4" /> Areas for Improvement
+                </h3>
+                <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/10 text-slate-700 dark:text-slate-300 text-sm whitespace-pre-wrap leading-relaxed">
+                  {assessment.evaluation.areasForImprovement || 'No specific areas for improvement recorded.'}
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2 pt-2">
+              <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                Overall Remarks
+              </h3>
+              <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-sm whitespace-pre-wrap leading-relaxed">
+                {assessment.evaluation.overallRemarks || 'No overall remarks provided.'}
+              </div>
+            </div>
+
+            {/* Question-level feedback */}
+            {assessment.responses && assessment.responses.some((r: any) => r.feedback) && (
+              <div className="pt-6 border-t border-slate-200 dark:border-slate-800">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Question Feedback</h3>
+                <div className="space-y-4">
+                  {assessment.responses
+                    .filter((r: any) => r.feedback)
+                    .sort((a: any, b: any) => a.questionNumber - b.questionNumber)
+                    .map((r: any) => (
+                      <div key={r.id} className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-blue-600 dark:text-blue-400 text-sm">Question {r.questionNumber}</span>
+                          {r.feedback.score !== null && (
+                            <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded font-mono font-bold text-xs text-slate-700 dark:text-slate-300">
+                              Score: {r.feedback.score}/10
+                            </span>
+                          )}
+                        </div>
+
+                        {r.feedback.remarks && (
+                          <div>
+                            <span className="text-xs font-semibold text-slate-500 block mb-1">Remarks:</span>
+                            <p className="text-sm text-slate-700 dark:text-slate-300">{r.feedback.remarks}</p>
+                          </div>
+                        )}
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {r.feedback.strengths && (
+                            <div className="p-3 bg-emerald-500/5 rounded-lg border border-emerald-500/10 text-xs">
+                              <span className="font-semibold text-emerald-700 dark:text-emerald-400 block mb-1">Strengths:</span>
+                              <span className="text-slate-600 dark:text-slate-400">{r.feedback.strengths}</span>
+                            </div>
+                          )}
+                          {r.feedback.needsImprovement && (
+                            <div className="p-3 bg-amber-500/5 rounded-lg border border-amber-500/10 text-xs">
+                              <span className="font-semibold text-amber-700 dark:text-amber-400 block mb-1">Needs Improvement:</span>
+                              <span className="text-slate-600 dark:text-slate-400">{r.feedback.needsImprovement}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Assessment History Section */}
         {assessments && assessments.length > 0 && (
           <div className="glass-panel p-6 space-y-4">
@@ -169,13 +290,14 @@ export default async function StudentDashboardPage() {
                     <th className="px-4 py-3">Attempt</th>
                     <th className="px-4 py-3">Status</th>
                     <th className="px-4 py-3">Date</th>
+                    <th className="px-4 py-3 text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200/80 dark:divide-slate-800/60">
                   {assessments.map((a: any) => (
                     <tr key={a.id} className="hover:bg-slate-100/60 dark:hover:bg-slate-800/40 transition-colors">
                       <td className="px-4 py-3 font-semibold text-slate-900 dark:text-white">
-                        Attempt {a.attemptNumber} {a.id === assessment.id ? '(Latest)' : ''}
+                        Attempt {a.attemptNumber} {a.id === assessment?.id ? '(Currently Viewing)' : ''}
                       </td>
                       <td className="px-4 py-3">
                         <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-bold ${
@@ -192,6 +314,26 @@ export default async function StudentDashboardPage() {
                       </td>
                       <td className="px-4 py-3 text-xs text-slate-500 dark:text-slate-400">
                         {new Date(a.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-3 text-right font-medium">
+                        {a.status === 'EVALUATED' ? (
+                          a.id === assessment?.id ? (
+                            <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20">
+                              Viewing Result
+                            </span>
+                          ) : (
+                            <Link
+                              href={`/dashboard?assessmentId=${a.id}`}
+                              className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors"
+                            >
+                              View Result
+                            </Link>
+                          )
+                        ) : (
+                          <span className="text-xs text-slate-400 dark:text-slate-500 italic">
+                            No Evaluation
+                          </span>
+                        )}
                       </td>
                     </tr>
                   ))}

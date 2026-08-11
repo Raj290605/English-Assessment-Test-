@@ -55,12 +55,12 @@ export async function createReattemptAssessment(studentId: string) {
     where: { studentId },
     orderBy: { attemptNumber: 'desc' },
   });
-  
+
   if (!latest) throw new Error('No existing assessment to reattempt');
   if (latest.status === AssessmentStatus.NOT_STARTED || latest.status === AssessmentStatus.IN_PROGRESS) {
     throw new Error('Complete your current assessment before starting a new one.');
   }
-  
+
   const newAttempt = await prisma.assessment.create({
     data: {
       studentId,
@@ -160,7 +160,7 @@ export async function submitAssessment(assessmentId: string, studentId: string) 
   });
 
   if (!assessment) throw new Error('Assessment not found');
-  
+
   // Verify all 20 responses are uploaded
   const responseCount = assessment.responses.length;
   if (responseCount < 20) {
@@ -176,12 +176,50 @@ export async function submitAssessment(assessmentId: string, studentId: string) 
   });
 }
 
-export async function getStudentAssessmentDetails(studentId: string) {
-  const assessment = await getOrCreateAssessment(studentId);
+export async function getStudentAssessmentDetails(studentId: string, assessmentId?: string | null) {
+  let assessment = null;
+
+  if (assessmentId) {
+    assessment = await prisma.assessment.findFirst({
+      where: { id: assessmentId, studentId },
+      include: {
+        evaluation: true,
+        responses: {
+          include: { feedback: true },
+        },
+        student: {
+          select: { id: true, studentId: true, name: true },
+        },
+      },
+    });
+  }
+
+  if (!assessment) {
+    const latest = await getOrCreateAssessment(studentId);
+    if (latest) {
+      assessment = await prisma.assessment.findUnique({
+        where: { id: latest.id },
+        include: {
+          evaluation: true,
+          responses: {
+            include: { feedback: true },
+          },
+          student: {
+            select: { id: true, studentId: true, name: true },
+          },
+        },
+      });
+    }
+  }
+
   const assessments = await prisma.assessment.findMany({
     where: { studentId },
+    include: {
+      evaluation: true,
+    },
     orderBy: { attemptNumber: 'desc' },
   });
+
   const questions = await getAllQuestions();
 
   return {
