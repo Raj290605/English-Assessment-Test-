@@ -31,7 +31,6 @@ export default function StudentLoginPage() {
       }
 
       router.push('/dashboard');
-      router.refresh();
     } catch (err: any) {
       setError(err.message);
     } finally {

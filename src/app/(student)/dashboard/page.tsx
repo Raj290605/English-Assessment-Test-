@@ -7,19 +7,13 @@ import { Navbar } from '@/components/common/Navbar';
 import { Mic, CheckCircle2, Play, Clock, Video, ShieldAlert, Award, History } from 'lucide-react';
 import { ReattemptButton } from '@/components/student/ReattemptButton';
 
-export default async function StudentDashboardPage({
-  searchParams,
-}: {
-  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
+export default async function StudentDashboardPage(props: any) {
+  const searchParams = await props.searchParams;
+  const assessmentId = searchParams?.assessmentId;
   const session = await getSession();
   if (!session || session.role !== 'STUDENT') {
     redirect('/login');
   }
-
-  const resolvedSearchParams = searchParams ? await searchParams : {};
-  const assessmentIdParam = resolvedSearchParams?.assessmentId;
-  const assessmentId = Array.isArray(assessmentIdParam) ? assessmentIdParam[0] : assessmentIdParam || null;
 
   let assessmentDetails: { assessment: any; assessments: any[]; questions: any[] } = {
     assessment: { status: 'NOT_STARTED', responses: [] },
@@ -61,15 +55,14 @@ export default async function StudentDashboardPage({
             </div>
 
             <div className="flex items-center gap-3">
-              <span className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 ${
-                status === 'EVALUATED'
-                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
-                  : isSubmitted
+              <span className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 ${status === 'EVALUATED'
+                ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
+                : isSubmitted
                   ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/30'
                   : status === 'IN_PROGRESS'
-                  ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-700'
-              }`}>
+                    ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-700'
+                }`}>
                 {isSubmitted ? <CheckCircle2 className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
                 Status: {status.replace('_', ' ')}
               </span>
@@ -83,7 +76,7 @@ export default async function StudentDashboardPage({
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">Assessment Progress</h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Attempt {assessment?.attemptNumber || 1}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">20 Spoken Response Questions</p>
               </div>
               <span className="text-2xl font-black text-blue-600 dark:text-blue-400 font-mono">
                 {answeredCount} / {totalQuestions}
@@ -105,13 +98,13 @@ export default async function StudentDashboardPage({
               </div>
               <div className="p-3 rounded-lg bg-slate-100/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
                 <span className="text-xs text-slate-500 dark:text-slate-400 block">Questions Remaining</span>
-                <span className="text-lg font-bold text-slate-800 dark:text-slate-200">{Math.max(0, totalQuestions - answeredCount)} questions</span>
+                <span className="text-lg font-bold text-slate-800 dark:text-slate-200">{totalQuestions - answeredCount} questions</span>
               </div>
             </div>
 
             {!isSubmitted ? (
               <Link
-                href={`/assessment${assessmentId ? `?assessmentId=${assessmentId}` : ''}`}
+                href="/assessment"
                 className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-blue-600/25 flex items-center justify-center gap-3 transition-all hover:scale-[1.01]"
               >
                 <Play className="w-5 h-5 fill-current" />
@@ -126,8 +119,7 @@ export default async function StudentDashboardPage({
                     Your video responses have been submitted securely for evaluator grading.
                   </div>
                 </div>
-                {/* Only show reattempt on the latest attempt */}
-                {assessments[0]?.id === assessment?.id && <ReattemptButton />}
+                <ReattemptButton />
               </>
             )}
           </div>
@@ -165,42 +157,47 @@ export default async function StudentDashboardPage({
         </div>
 
         {/* Evaluation Results Section */}
-        {assessment?.evaluation && status === 'EVALUATED' && (
-          <div className="glass-panel p-6 space-y-6 bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-500/20">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
-              <div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Award className="w-6 h-6 text-emerald-500" />
-                  Evaluation Results
-                </h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                  Scores and feedback for Attempt {assessment.attemptNumber}
-                </p>
-              </div>
-              <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-800/50 shadow-sm text-center">
-                <span className="text-xs text-slate-500 dark:text-slate-400 block font-bold uppercase tracking-wider mb-1">Overall Score</span>
-                <span className="text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
-                  {assessment.evaluation.overallScore} <span className="text-lg text-slate-400">/ 10</span>
-                </span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              {[
-                { label: 'Fluency', score: assessment.evaluation.fluencyScore },
-                { label: 'Grammar', score: assessment.evaluation.grammarScore },
-                { label: 'Pronunciation', score: assessment.evaluation.pronunciationScore },
-                { label: 'Vocabulary', score: assessment.evaluation.vocabularyScore },
-                { label: 'Confidence', score: assessment.evaluation.confidenceScore },
-              ].map((metric) => (
-                <div key={metric.label} className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
-                  <span className="text-xs text-slate-500 dark:text-slate-400 block mb-1">{metric.label}</span>
-                  <span className="text-xl font-bold text-slate-800 dark:text-slate-200 font-mono">{metric.score}/10</span>
+        {status === 'EVALUATED' && assessment?.evaluation && (
+          <div className="glass-panel p-6 space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Award className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
+                Evaluation Results
+              </h2>
+              <div className="text-right">
+                <div className="text-3xl font-black text-slate-900 dark:text-white font-mono">
+                  {assessment.evaluation.overallScore}<span className="text-lg text-slate-500">/100</span>
                 </div>
-              ))}
+                <div className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                  Overall Score
+                </div>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              <div className="p-3 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
+                <div className="text-xl font-bold text-slate-900 dark:text-white">{assessment.evaluation.fluencyScore}/20</div>
+                <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mt-1">Fluency</div>
+              </div>
+              <div className="p-3 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
+                <div className="text-xl font-bold text-slate-900 dark:text-white">{assessment.evaluation.grammarScore}/20</div>
+                <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mt-1">Grammar</div>
+              </div>
+              <div className="p-3 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
+                <div className="text-xl font-bold text-slate-900 dark:text-white">{assessment.evaluation.pronunciationScore}/20</div>
+                <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mt-1">Pronunciation</div>
+              </div>
+              <div className="p-3 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
+                <div className="text-xl font-bold text-slate-900 dark:text-white">{assessment.evaluation.vocabularyScore}/20</div>
+                <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mt-1">Vocabulary</div>
+              </div>
+              <div className="p-3 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
+                <div className="text-xl font-bold text-slate-900 dark:text-white">{assessment.evaluation.confidenceScore}/20</div>
+                <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mt-1">Confidence</div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
               <div className="space-y-2">
                 <h3 className="text-sm font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4" /> Strengths
@@ -209,6 +206,7 @@ export default async function StudentDashboardPage({
                   {assessment.evaluation.strengths || 'No specific strengths recorded.'}
                 </div>
               </div>
+
               <div className="space-y-2">
                 <h3 className="text-sm font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider flex items-center gap-2">
                   <ShieldAlert className="w-4 h-4" /> Areas for Improvement
@@ -300,15 +298,14 @@ export default async function StudentDashboardPage({
                         Attempt {a.attemptNumber} {a.id === assessment?.id ? '(Currently Viewing)' : ''}
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-bold ${
-                          a.status === 'EVALUATED'
-                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
-                            : a.status === 'SUBMITTED'
+                        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-bold ${a.status === 'EVALUATED'
+                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                          : a.status === 'SUBMITTED'
                             ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20'
                             : a.status === 'IN_PROGRESS'
-                            ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-300 dark:border-slate-700'
-                        }`}>
+                              ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-300 dark:border-slate-700'
+                          }`}>
                           {a.status.replace('_', ' ')}
                         </span>
                       </td>
@@ -324,6 +321,7 @@ export default async function StudentDashboardPage({
                           ) : (
                             <Link
                               href={`/dashboard?assessmentId=${a.id}`}
+                              prefetch={false}
                               className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors"
                             >
                               View Result

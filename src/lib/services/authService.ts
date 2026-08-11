@@ -70,8 +70,13 @@ export async function verifyUserCredentials(studentId: string, password: string)
   const cleanId = studentId ? studentId.trim() : '';
   if (!cleanId || !password) return null;
 
-  let user = await prisma.user.findUnique({
-    where: { studentId: cleanId },
+  const user = await prisma.user.findFirst({
+    where: {
+      studentId: {
+        equals: cleanId,
+        mode: 'insensitive',
+      },
+    },
     select: {
       id: true,
       studentId: true,
@@ -80,19 +85,6 @@ export async function verifyUserCredentials(studentId: string, password: string)
       passwordHash: true,
     },
   });
-
-  if (!user) {
-    const users = await prisma.user.findMany({
-      select: {
-        id: true,
-        studentId: true,
-        name: true,
-        role: true,
-        passwordHash: true,
-      },
-    });
-    user = users.find((u) => u.studentId.toLowerCase() === cleanId.toLowerCase()) || null;
-  }
 
   if (!user) return null;
 

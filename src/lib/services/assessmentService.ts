@@ -176,54 +176,97 @@ export async function submitAssessment(assessmentId: string, studentId: string) 
   });
 }
 
-export async function getStudentAssessmentDetails(studentId: string, assessmentId?: string | null) {
-  let assessment = null;
-
-  if (assessmentId) {
-    assessment = await prisma.assessment.findFirst({
-      where: { id: assessmentId, studentId },
-      include: {
-        evaluation: true,
-        responses: {
-          include: { feedback: true },
-        },
-        student: {
-          select: { id: true, studentId: true, name: true },
-        },
-      },
-    });
-  }
-
-  if (!assessment) {
-    const latest = await getOrCreateAssessment(studentId);
-    if (latest) {
-      assessment = await prisma.assessment.findUnique({
-        where: { id: latest.id },
-        include: {
-          evaluation: true,
-          responses: {
-            include: { feedback: true },
-          },
-          student: {
-            select: { id: true, studentId: true, name: true },
-          },
-        },
-      });
-    }
-  }
-
-  const assessments = await prisma.assessment.findMany({
+export async function getStudentAssessmentDetails(studentId: string, assessmentId?: string) {
+  const historyPromise = prisma.assessment.findMany({
     where: { studentId },
-    include: {
-      evaluation: true,
+    select: {
+      id: true,
+      studentId: true,
+      attemptNumber: true,
+      status: true,
+      createdAt: true,
+      submittedAt: true,
     },
     orderBy: { attemptNumber: 'desc' },
   });
 
-  const questions = await getAllQuestions();
+  const questionsPromise = getAllQuestions();
+
+  let [assessments, questions] = await Promise.all([
+    historyPromise,
+    questionsPromise,
+  ]);
+
+  let targetAssessment = null;
+
+  if (assessmentId) {
+    targetAssessment = await prisma.assessment.findFirst({
+      where: { id: assessmentId, studentId },
+      include: {
+        responses: {
+          include: { feedback: true }
+        },
+        evaluation: true,
+        student: { select: { id: true, studentId: true, name: true } },
+      }
+    });
+  }
+
+  if (!targetAssessment) {
+    if (assessments.length === 0) {
+      try {
+        targetAssessment = await prisma.assessment.create({
+          data: {
+            studentId,
+            status: AssessmentStatus.NOT_STARTED,
+            attemptNumber: 1,
+          },
+          include: {
+            responses: { include: { feedback: true } },
+            evaluation: true,
+            student: { select: { id: true, studentId: true, name: true } },
+          },
+        });
+        
+        assessments = [{
+          id: targetAssessment.id,
+          studentId: targetAssessment.studentId,
+          attemptNumber: targetAssessment.attemptNumber,
+          status: targetAssessment.status,
+          createdAt: targetAssessment.createdAt,
+          submittedAt: targetAssessment.submittedAt,
+        } as any, ...assessments];
+      } catch (error: any) {
+        if (error.code === 'P2002') {
+          targetAssessment = await prisma.assessment.findFirst({
+            where: { studentId },
+            include: {
+              responses: { include: { feedback: true } },
+              evaluation: true,
+              student: { select: { id: true, studentId: true, name: true } },
+            },
+            orderBy: { attemptNumber: 'desc' },
+          });
+          if (!targetAssessment) throw error;
+        } else {
+          throw error;
+        }
+      }
+    } else {
+      const latestId = assessments[0].id;
+      targetAssessment = await prisma.assessment.findUnique({
+        where: { id: latestId },
+        include: {
+          responses: { include: { feedback: true } },
+          evaluation: true,
+          student: { select: { id: true, studentId: true, name: true } },
+        }
+      });
+    }
+  }
 
   return {
-    assessment,
+    assessment: targetAssessment,
     assessments,
     questions,
   };
