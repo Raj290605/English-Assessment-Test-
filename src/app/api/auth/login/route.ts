@@ -3,7 +3,8 @@ import { verifyUserCredentials, createSession } from '@/lib/services/authService
 
 export async function POST(request: Request) {
   try {
-    const { studentId, password } = await request.json();
+    const body = await request.json();
+    const { studentId, password } = body;
 
     if (!studentId || !password) {
       return NextResponse.json(

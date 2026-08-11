@@ -10,8 +10,7 @@ export async function getAdminStudentList() {
       name: true,
       createdAt: true,
       assessments: {
-        orderBy: { createdAt: 'desc' },
-        take: 1,
+        orderBy: { attemptNumber: 'desc' },
         include: {
           responses: {
             select: { id: true, questionNumber: true },
@@ -25,22 +24,41 @@ export async function getAdminStudentList() {
     orderBy: { studentId: 'asc' },
   });
 
-  return students.map((s) => {
-    const latestAssessment = s.assessments[0] || null;
-    return {
-      id: s.id,
-      studentId: s.studentId,
-      name: s.name,
-      assessmentId: latestAssessment?.id || null,
-      status: latestAssessment?.status || AssessmentStatus.NOT_STARTED,
-      responsesCount: latestAssessment?.responses.length || 0,
-      submittedAt: latestAssessment?.submittedAt || null,
-      evaluation: latestAssessment?.evaluation || null,
-    };
-  });
+  const list = [];
+  for (const s of students) {
+    if (s.assessments.length === 0) {
+      list.push({
+        id: s.id,
+        studentId: s.studentId,
+        name: s.name,
+        assessmentId: null,
+        attemptNumber: 1,
+        status: AssessmentStatus.NOT_STARTED,
+        responsesCount: 0,
+        submittedAt: null,
+        evaluation: null,
+      });
+    } else {
+      for (const a of s.assessments) {
+        list.push({
+          id: s.id,
+          studentId: s.studentId,
+          name: s.name,
+          assessmentId: a.id,
+          attemptNumber: a.attemptNumber,
+          status: a.status,
+          responsesCount: a.responses.length,
+          submittedAt: a.submittedAt,
+          evaluation: a.evaluation,
+        });
+      }
+    }
+  }
+
+  return list;
 }
 
-export async function getAdminStudentAssessmentDetail(studentId: string) {
+export async function getAdminStudentAssessmentDetail(studentId: string, assessmentId?: string | null) {
   const student = await prisma.user.findUnique({
     where: { id: studentId },
     select: {
@@ -53,7 +71,7 @@ export async function getAdminStudentAssessmentDetail(studentId: string) {
   if (!student) throw new Error('Student not found');
 
   const assessment = await prisma.assessment.findFirst({
-    where: { studentId: student.id },
+    where: assessmentId ? { id: assessmentId, studentId: student.id } : { studentId: student.id },
     include: {
       responses: {
         include: {
@@ -64,7 +82,7 @@ export async function getAdminStudentAssessmentDetail(studentId: string) {
       },
       evaluation: true,
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy: { attemptNumber: 'desc' },
   });
 
   const questions = await prisma.question.findMany({

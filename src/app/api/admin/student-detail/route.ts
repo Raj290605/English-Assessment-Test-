@@ -11,12 +11,13 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const studentId = searchParams.get('studentId');
+    const assessmentId = searchParams.get('assessmentId');
 
     if (!studentId) {
       return NextResponse.json({ error: 'Student ID is required' }, { status: 400 });
     }
 
-    const detail = await getAdminStudentAssessmentDetail(studentId);
+    const detail = await getAdminStudentAssessmentDetail(studentId, assessmentId);
     return NextResponse.json(detail);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

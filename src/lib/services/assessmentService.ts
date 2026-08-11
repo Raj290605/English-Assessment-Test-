@@ -10,25 +10,65 @@ export async function getOrCreateAssessment(studentId: string) {
         select: { id: true, studentId: true, name: true },
       },
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy: { attemptNumber: 'desc' },
   });
 
   if (!assessment) {
-    assessment = await prisma.assessment.create({
-      data: {
-        studentId,
-        status: AssessmentStatus.NOT_STARTED,
-      },
-      include: {
-        responses: true,
-        student: {
-          select: { id: true, studentId: true, name: true },
+    try {
+      assessment = await prisma.assessment.create({
+        data: {
+          studentId,
+          status: AssessmentStatus.NOT_STARTED,
+          attemptNumber: 1,
         },
-      },
-    });
+        include: {
+          responses: true,
+          student: {
+            select: { id: true, studentId: true, name: true },
+          },
+        },
+      });
+    } catch (error: any) {
+      if (error.code === 'P2002') {
+        assessment = await prisma.assessment.findFirst({
+          where: { studentId },
+          include: {
+            responses: true,
+            student: {
+              select: { id: true, studentId: true, name: true },
+            },
+          },
+          orderBy: { attemptNumber: 'desc' },
+        });
+        if (!assessment) throw error;
+      } else {
+        throw error;
+      }
+    }
   }
 
   return assessment;
+}
+
+export async function createReattemptAssessment(studentId: string) {
+  const latest = await prisma.assessment.findFirst({
+    where: { studentId },
+    orderBy: { attemptNumber: 'desc' },
+  });
+  
+  if (!latest) throw new Error('No existing assessment to reattempt');
+  if (latest.status === AssessmentStatus.NOT_STARTED || latest.status === AssessmentStatus.IN_PROGRESS) {
+    throw new Error('Complete your current assessment before starting a new one.');
+  }
+  
+  const newAttempt = await prisma.assessment.create({
+    data: {
+      studentId,
+      attemptNumber: latest.attemptNumber + 1,
+      status: AssessmentStatus.NOT_STARTED,
+    },
+  });
+  return newAttempt;
 }
 
 export async function startAssessment(assessmentId: string, studentId: string) {
@@ -138,10 +178,15 @@ export async function submitAssessment(assessmentId: string, studentId: string) 
 
 export async function getStudentAssessmentDetails(studentId: string) {
   const assessment = await getOrCreateAssessment(studentId);
+  const assessments = await prisma.assessment.findMany({
+    where: { studentId },
+    orderBy: { attemptNumber: 'desc' },
+  });
   const questions = await getAllQuestions();
 
   return {
     assessment,
+    assessments,
     questions,
   };
 }

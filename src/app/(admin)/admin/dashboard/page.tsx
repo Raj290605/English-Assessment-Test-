@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/common/Navbar';
-import { ShieldCheck, Search, Filter, CheckCircle2, Clock, Award, ArrowRight, UserCheck, UserPlus, Trash2 } from 'lucide-react';
+import { ShieldCheck, Search, Filter, CheckCircle2, Clock, Award, ArrowRight, UserCheck, UserPlus, Trash2, ChevronDown, ChevronRight, CornerDownRight } from 'lucide-react';
 import { CreateStudentModal } from '@/components/admin/CreateStudentModal';
 
 interface StudentListItem {
@@ -12,6 +12,7 @@ interface StudentListItem {
   studentId: string;
   name: string;
   assessmentId: string | null;
+  attemptNumber: number;
   status: string;
   responsesCount: number;
   submittedAt: string | null;
@@ -28,7 +29,15 @@ export default function AdminDashboardPage() {
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
   const [loading, setLoading] = useState(true);
+  const [expandedStudents, setExpandedStudents] = useState<Record<string, boolean>>({});
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const toggleExpand = (studentId: string) => {
+    setExpandedStudents((prev) => ({
+      ...prev,
+      [studentId]: !prev[studentId],
+    }));
+  };
 
   const loadAdminData = async () => {
     try {
@@ -79,6 +88,14 @@ export default function AdminDashboardPage() {
     loadAdminData();
   }, []);
 
+  useEffect(() => {
+    const initial: Record<string, boolean> = {};
+    students.forEach((s) => {
+      initial[s.id] = true; // Auto-expand all students
+    });
+    setExpandedStudents(initial);
+  }, [students]);
+
   const filteredStudents = students.filter((s) => {
     const matchesSearch =
       s.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -90,6 +107,21 @@ export default function AdminDashboardPage() {
     if (filterStatus === 'IN_PROGRESS') return matchesSearch && (s.status === 'IN_PROGRESS' || s.status === 'NOT_STARTED');
     return matchesSearch;
   });
+
+  const groupedStudents = filteredStudents.reduce((acc, current) => {
+    if (!acc[current.id]) {
+      acc[current.id] = {
+        studentInfo: current,
+        attempts: []
+      };
+    }
+    if (current.assessmentId) {
+      acc[current.id].attempts.push(current);
+    }
+    return acc;
+  }, {} as Record<string, { studentInfo: StudentListItem, attempts: StudentListItem[] }>);
+
+  const groupedArray = Object.values(groupedStudents);
 
   if (loading) {
     return (
@@ -133,7 +165,7 @@ export default function AdminDashboardPage() {
               </button>
               <div className="p-4 rounded-xl bg-slate-100/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 text-center">
                 <span className="text-xs text-slate-500 dark:text-slate-400 block font-medium">Total Candidates</span>
-                <span className="text-2xl font-black text-slate-900 dark:text-slate-100 font-mono">{students.length}</span>
+                <span className="text-2xl font-black text-slate-900 dark:text-slate-100 font-mono">{Object.keys(groupedStudents).length || students.length}</span>
               </div>
               <div className="p-4 rounded-xl bg-slate-100/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 text-center">
                 <span className="text-xs text-slate-500 dark:text-slate-400 block font-medium">Submissions Ready</span>
@@ -188,6 +220,7 @@ export default function AdminDashboardPage() {
               <thead className="bg-slate-100/80 dark:bg-slate-900/80 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">
                 <tr>
                   <th className="px-6 py-4">Student Name & ID</th>
+                  <th className="px-6 py-4">Attempt #</th>
                   <th className="px-6 py-4">Assessment Status</th>
                   <th className="px-6 py-4">Responses</th>
                   <th className="px-6 py-4">Submitted At</th>
@@ -196,69 +229,118 @@ export default function AdminDashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200/80 dark:divide-slate-800/60">
-                {filteredStudents.length === 0 ? (
+                {groupedArray.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-slate-500 text-sm">
-                      No student assessments found matching filter parameters.
+                    <td colSpan={7} className="px-6 py-12 text-center text-slate-500 text-sm">
+                      No students found matching filter parameters.
                     </td>
                   </tr>
                 ) : (
-                  filteredStudents.map((s) => (
-                    <tr key={s.id} className="hover:bg-slate-100/60 dark:hover:bg-slate-800/40 transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="font-bold text-slate-900 dark:text-white">{s.name}</div>
-                        <div className="text-xs text-slate-500 dark:text-slate-400 font-mono">{s.studentId}</div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
-                          s.status === 'EVALUATED'
-                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
-                            : s.status === 'SUBMITTED'
-                            ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20'
-                            : s.status === 'IN_PROGRESS'
-                            ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-300 dark:border-slate-700'
-                        }`}>
-                          {s.status === 'EVALUATED' && <Award className="w-3.5 h-3.5" />}
-                          {s.status === 'SUBMITTED' && <CheckCircle2 className="w-3.5 h-3.5" />}
-                          {s.status.replace('_', ' ')}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 font-mono font-bold text-slate-800 dark:text-slate-200">
-                        {s.responsesCount} / 20
-                      </td>
-                      <td className="px-6 py-4 text-xs text-slate-500 dark:text-slate-400">
-                        {s.submittedAt ? new Date(s.submittedAt).toLocaleDateString() : '—'}
-                      </td>
-                      <td className="px-6 py-4">
-                        {s.evaluation?.overallScore ? (
-                          <span className="px-3 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono font-extrabold text-sm border border-emerald-500/20">
-                            {s.evaluation.overallScore} / 10
-                          </span>
-                        ) : (
-                          <span className="text-xs text-slate-400 dark:text-slate-500 italic">Not graded</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => handleDeleteStudent(s.id, s.name)}
-                            className="inline-flex items-center gap-1.5 py-2 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-red-600 hover:text-white dark:hover:bg-red-600 text-red-600 dark:text-red-400 font-semibold rounded-xl border border-slate-300 dark:border-slate-700 hover:border-red-500 text-xs transition-all shadow-sm hover:shadow-red-500/20"
-                            title="Delete Student Record"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                          <Link
-                            href={`/admin/students/${s.id}`}
-                            className="inline-flex items-center gap-1.5 py-2 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 text-emerald-600 dark:text-emerald-400 font-semibold rounded-xl border border-slate-300 dark:border-slate-700 hover:border-emerald-500 text-xs transition-all shadow-sm hover:shadow-emerald-500/20"
-                          >
-                            Review & Grade
-                            <ArrowRight className="w-3.5 h-3.5" />
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                  groupedArray.map((group) => {
+                    const isExpanded = expandedStudents[group.studentInfo.id] || false;
+                    const s = group.studentInfo;
+                    const attempts = group.attempts;
+
+                    return (
+                      <React.Fragment key={s.id}>
+                        {/* Parent Row */}
+                        <tr className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors">
+                          <td className="px-6 py-4 border-l-2 border-transparent">
+                            <div className="flex items-center gap-3">
+                              {attempts.length > 0 ? (
+                                <button 
+                                  onClick={() => toggleExpand(s.id)}
+                                  className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-500 dark:text-slate-400"
+                                >
+                                  {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                                </button>
+                              ) : (
+                                <div className="w-6" />
+                              )}
+                              <div>
+                                <div className="font-bold text-slate-900 dark:text-white">{s.name}</div>
+                                <div className="text-xs text-slate-500 dark:text-slate-400 font-mono">{s.studentId}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td colSpan={5} className="px-6 py-4">
+                            {attempts.length > 0 ? (
+                              <span className="text-sm text-slate-500 dark:text-slate-400">
+                                {attempts.length} Attempt{attempts.length !== 1 ? 's' : ''}
+                              </span>
+                            ) : (
+                              <span className="text-sm text-slate-500 dark:text-slate-400 italic">
+                                No attempts
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <button
+                              onClick={() => handleDeleteStudent(s.id, s.name)}
+                              className="inline-flex items-center gap-1.5 py-2 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-red-600 hover:text-white dark:hover:bg-red-600 text-red-600 dark:text-red-400 font-semibold rounded-xl border border-slate-300 dark:border-slate-700 hover:border-red-500 text-xs transition-all shadow-sm hover:shadow-red-500/20"
+                              title="Delete Student Record"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+
+                        {/* Child Rows for Attempts */}
+                        {isExpanded && attempts.map((attempt) => (
+                          <tr key={attempt.assessmentId} className="bg-slate-50/40 dark:bg-slate-900/40 hover:bg-slate-100/60 dark:hover:bg-slate-800/60 transition-colors">
+                            <td className="px-6 py-3 pl-14">
+                              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                                <CornerDownRight className="w-4 h-4 text-slate-400" />
+                                <span className="font-semibold text-sm">Attempt {attempt.attemptNumber}</span>
+                              </div>
+                            </td>
+                            <td className="px-6 py-3">
+                              {/* Empty for Attempt # column, already displayed in name column */}
+                            </td>
+                            <td className="px-6 py-3">
+                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
+                                attempt.status === 'EVALUATED'
+                                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                                  : attempt.status === 'SUBMITTED'
+                                  ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20'
+                                  : attempt.status === 'IN_PROGRESS'
+                                  ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
+                                  : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-300 dark:border-slate-700'
+                              }`}>
+                                {attempt.status === 'EVALUATED' && <Award className="w-3.5 h-3.5" />}
+                                {attempt.status === 'SUBMITTED' && <CheckCircle2 className="w-3.5 h-3.5" />}
+                                {attempt.status.replace('_', ' ')}
+                              </span>
+                            </td>
+                            <td className="px-6 py-3 font-mono font-bold text-slate-800 dark:text-slate-200 text-sm">
+                              {attempt.responsesCount} / 20
+                            </td>
+                            <td className="px-6 py-3 text-xs text-slate-500 dark:text-slate-400">
+                              {attempt.submittedAt ? new Date(attempt.submittedAt).toLocaleDateString() : '—'}
+                            </td>
+                            <td className="px-6 py-3">
+                              {attempt.evaluation?.overallScore ? (
+                                <span className="px-3 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono font-extrabold text-sm border border-emerald-500/20">
+                                  {attempt.evaluation.overallScore} / 10
+                                </span>
+                              ) : (
+                                <span className="text-xs text-slate-400 dark:text-slate-500 italic">Not graded</span>
+                              )}
+                            </td>
+                            <td className="px-6 py-3 text-right">
+                              <Link
+                                href={`/admin/students/${s.id}?assessmentId=${attempt.assessmentId}`}
+                                className="inline-flex items-center gap-1.5 py-1.5 px-3 bg-white dark:bg-slate-800 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 text-emerald-600 dark:text-emerald-400 font-semibold rounded-lg border border-slate-300 dark:border-slate-700 hover:border-emerald-500 text-xs transition-all shadow-sm hover:shadow-emerald-500/20"
+                              >
+                                Review & Grade
+                                <ArrowRight className="w-3.5 h-3.5" />
+                              </Link>
+                            </td>
+                          </tr>
+                        ))}
+                      </React.Fragment>
+                    );
+                  })
                 )}
               </tbody>
             </table>

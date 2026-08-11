@@ -1,16 +1,18 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Navbar } from '@/components/common/Navbar';
 import { AuthenticatedVideoPlayer } from '@/components/admin/AuthenticatedVideoPlayer';
-import { ArrowLeft, Save, CheckCircle2, AlertCircle, Award, Video, MessageSquare, Star, Sliders } from 'lucide-react';
+import { ArrowLeft, Save, CheckCircle2, AlertCircle, Award, Video, MessageSquare, Star, Sliders, History } from 'lucide-react';
 
 export default function StudentReviewPage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const studentId = params?.id as string;
+  const assessmentId = searchParams.get('assessmentId');
 
   const [user, setUser] = useState<any>(null);
   const [student, setStudent] = useState<any>(null);
@@ -51,7 +53,10 @@ export default function StudentReviewPage() {
       }
       setUser(meData.user);
 
-      const res = await fetch(`/api/admin/student-detail?studentId=${studentId}`);
+      const url = assessmentId 
+        ? `/api/admin/student-detail?studentId=${studentId}&assessmentId=${assessmentId}`
+        : `/api/admin/student-detail?studentId=${studentId}`;
+      const res = await fetch(url);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to fetch student details');
 
@@ -207,6 +212,12 @@ export default function StudentReviewPage() {
                 <span className="text-xs text-slate-600 dark:text-slate-400 font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                   {student.studentId}
                 </span>
+                {assessment?.attemptNumber && (
+                  <span className="text-xs text-blue-600 dark:text-blue-400 font-bold px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 flex items-center gap-1">
+                    <History className="w-3.5 h-3.5" />
+                    Attempt {assessment.attemptNumber}
+                  </span>
+                )}
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                 Assessment Status:{' '}

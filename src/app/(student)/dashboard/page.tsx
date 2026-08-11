@@ -4,7 +4,8 @@ import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/services/authService';
 import { getStudentAssessmentDetails } from '@/lib/services/assessmentService';
 import { Navbar } from '@/components/common/Navbar';
-import { Mic, CheckCircle2, Play, Clock, Video, ShieldAlert, Award } from 'lucide-react';
+import { Mic, CheckCircle2, Play, Clock, Video, ShieldAlert, Award, History } from 'lucide-react';
+import { ReattemptButton } from '@/components/student/ReattemptButton';
 
 export default async function StudentDashboardPage() {
   const session = await getSession();
@@ -12,8 +13,9 @@ export default async function StudentDashboardPage() {
     redirect('/login');
   }
 
-  let assessmentDetails: { assessment: any; questions: any[] } = {
+  let assessmentDetails: { assessment: any; assessments: any[]; questions: any[] } = {
     assessment: { status: 'NOT_STARTED', responses: [] },
+    assessments: [],
     questions: [],
   };
 
@@ -23,7 +25,7 @@ export default async function StudentDashboardPage() {
     console.error('Failed to load assessment details:', err);
   }
 
-  const { assessment, questions } = assessmentDetails;
+  const { assessment, assessments, questions } = assessmentDetails;
   const totalQuestions = questions && questions.length > 0 ? questions.length : 20;
   const answeredCount = assessment?.responses ? assessment.responses.length : 0;
   const status = assessment?.status || 'NOT_STARTED';
@@ -108,13 +110,16 @@ export default async function StudentDashboardPage() {
                 {answeredCount > 0 ? `Resume Assessment (Question ${answeredCount + 1})` : 'Start Assessment'}
               </Link>
             ) : (
-              <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-600 dark:text-blue-300 text-sm flex items-center gap-3">
-                <CheckCircle2 className="w-6 h-6 shrink-0 text-blue-500 dark:text-blue-400" />
-                <div>
-                  <span className="font-semibold block">Assessment Complete</span>
-                  Your 20 video responses have been submitted securely for evaluator grading.
+              <>
+                <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-600 dark:text-blue-300 text-sm flex items-center gap-3">
+                  <CheckCircle2 className="w-6 h-6 shrink-0 text-blue-500 dark:text-blue-400" />
+                  <div>
+                    <span className="font-semibold block">Assessment Complete</span>
+                    Your video responses have been submitted securely for evaluator grading.
+                  </div>
                 </div>
-              </div>
+                <ReattemptButton />
+              </>
             )}
           </div>
 
@@ -149,6 +154,52 @@ export default async function StudentDashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* Assessment History Section */}
+        {assessments && assessments.length > 0 && (
+          <div className="glass-panel p-6 space-y-4">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <History className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+              Assessment History
+            </h2>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm text-slate-700 dark:text-slate-300">
+                <thead className="bg-slate-100/80 dark:bg-slate-900/80 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">
+                  <tr>
+                    <th className="px-4 py-3">Attempt</th>
+                    <th className="px-4 py-3">Status</th>
+                    <th className="px-4 py-3">Date</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200/80 dark:divide-slate-800/60">
+                  {assessments.map((a: any) => (
+                    <tr key={a.id} className="hover:bg-slate-100/60 dark:hover:bg-slate-800/40 transition-colors">
+                      <td className="px-4 py-3 font-semibold text-slate-900 dark:text-white">
+                        Attempt {a.attemptNumber} {a.id === assessment.id ? '(Latest)' : ''}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-bold ${
+                          a.status === 'EVALUATED'
+                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                            : a.status === 'SUBMITTED'
+                            ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20'
+                            : a.status === 'IN_PROGRESS'
+                            ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-300 dark:border-slate-700'
+                        }`}>
+                          {a.status.replace('_', ' ')}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-xs text-slate-500 dark:text-slate-400">
+                        {new Date(a.createdAt).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
