@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/services/authService';
 import Link from 'next/link';
-import { Mic, ShieldCheck, User } from 'lucide-react';
+import { ArrowRight, Mic, ShieldCheck, User } from 'lucide-react';
 import { ThemeToggle } from '@/components/common/ThemeProvider';
 
 export default async function HomePage() {
@@ -16,58 +16,114 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center items-center p-4 relative overflow-hidden transition-colors duration-200">
-      {/* Theme toggle top-right */}
-      <div className="absolute top-4 right-4 z-20">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center px-4 py-10 relative overflow-hidden transition-colors duration-200">
+
+      {/* Theme toggle */}
+      <div className="absolute top-5 right-5 z-20">
         <ThemeToggle />
       </div>
 
-      {/* Glow Effects */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-1/4 left-1/2 -translate-x-1/2 w-80 h-80 bg-indigo-600/10 blur-[100px] rounded-full pointer-events-none" />
+      {/* Subtle background decoration */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-blue-500/[0.04] dark:bg-blue-500/[0.06] blur-3xl rounded-full pointer-events-none" />
 
-      <div className="max-w-xl w-full text-center space-y-8 relative z-10">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-tr from-blue-600 to-indigo-500 shadow-2xl shadow-blue-500/30 mb-2">
-          <Mic className="w-10 h-10 text-white" />
-        </div>
+      <main className="relative z-10 w-full max-w-4xl">
 
-        <div>
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            English Assessment Platform
+        {/* Brand / Heading */}
+        <div className="text-center mb-12">
+
+          {/* Logo */}
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-600 shadow-lg shadow-blue-600/20 mb-6">
+            <Mic className="w-8 h-8 text-white" />
+          </div>
+
+          {/* Eyebrow */}
+          <p className="text-xs font-semibold tracking-[0.2em] text-blue-600 dark:text-blue-400 uppercase mb-3">
+            University Interview Preparation
+          </p>
+
+          {/* Main heading */}
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
+            Credibility Interview Test
           </h1>
-          <p className="mt-4 text-slate-600 dark:text-slate-400 text-lg">
-            Professional 20-question video speaking evaluation portal for students and evaluators.
+
+          {/* Description */}
+          <p className="mt-4 max-w-2xl mx-auto text-base sm:text-lg leading-relaxed text-slate-600 dark:text-slate-400">
+            Practice your university credibility interview and build
+            confidence before the real interview.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
-          <Link
-            href="/login"
-            className="group glass-panel p-6 flex flex-col items-center justify-center hover:border-blue-500/50 transition-all hover:-translate-y-1"
-          >
-            <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-3 group-hover:bg-blue-500 group-hover:text-white transition-colors">
-              <User className="w-6 h-6" />
-            </div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white">Student Portal</h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Take speaking assessment</p>
-          </Link>
+        {/* Portal Selection */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto">
 
+          {/* Admin Portal */}
           <Link
             href="/admin-login"
-            className="group glass-panel p-6 flex flex-col items-center justify-center hover:border-emerald-500/50 transition-all hover:-translate-y-1"
+            className="group relative rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-7 sm:p-8 transition-all duration-200 hover:-translate-y-1 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-xl hover:shadow-slate-900/[0.06] dark:hover:shadow-black/20"
           >
-            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
-              <ShieldCheck className="w-6 h-6" />
+            <div className="flex flex-col h-full">
+
+              <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center mb-6 transition-colors duration-200 group-hover:bg-slate-900 group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-slate-900">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+
+              <div className="flex-1">
+                <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+                  Admin Portal
+                </h2>
+
+                <p className="mt-2 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+                  Review student assessments, evaluate responses and manage interview results.
+                </p>
+              </div>
+
+              <div className="mt-7 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                Enter Portal
+                <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
+              </div>
+
             </div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white">Admin Portal</h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Review & grade assessments</p>
           </Link>
+
+          {/* Student Portal */}
+          <Link
+            href="/login"
+            className="group relative rounded-2xl border border-blue-200 dark:border-blue-900/50 bg-white dark:bg-slate-900 p-7 sm:p-8 transition-all duration-200 hover:-translate-y-1 hover:border-blue-400 dark:hover:border-blue-700 hover:shadow-xl hover:shadow-blue-600/[0.08]"
+          >
+            <div className="flex flex-col h-full">
+
+              <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-6 transition-colors duration-200 group-hover:bg-blue-600 group-hover:text-white">
+                <User className="w-6 h-6" />
+              </div>
+
+              <div className="flex-1">
+                <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+                  Student Portal
+                </h2>
+
+                <p className="mt-2 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+                  Practice your credibility interview, complete assessments and review your results.
+                </p>
+              </div>
+
+              <div className="mt-7 flex items-center gap-2 text-sm font-semibold text-blue-600 dark:text-blue-400">
+                Enter Portal
+                <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
+              </div>
+
+            </div>
+          </Link>
+
         </div>
 
-        <div className="pt-6 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-500 font-mono">
-          Secure Cloudinary Private Media &bull; Next.js 14 &bull; 20-Question Rubric
+        {/* Trust Footer */}
+        <div className="mt-10 text-center">
+          <p className="text-xs text-slate-400 dark:text-slate-600">
+            Secure • Private • Professional Interview Preparation
+          </p>
         </div>
-      </div>
+
+      </main>
     </div>
   );
 }
