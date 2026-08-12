@@ -88,7 +88,7 @@ export default function StudentLoginPage() {
       {/* Main content */}
       <div className="relative z-10 min-h-screen flex items-center">
 
-        <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 py-28 lg:py-20">
+        <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 py-20 lg:py-8">
 
           <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-12 lg:gap-20 items-center">
 
@@ -99,7 +99,7 @@ export default function StudentLoginPage() {
             <section className="hidden lg:block max-w-xl">
 
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-blue-500/20 bg-blue-500/5 text-blue-700 dark:text-blue-400 text-xs font-semibold mb-7">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-blue-500/20 bg-blue-500/5 text-blue-700 dark:text-blue-400 text-xs font-semibold mb-5">
                 <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
                 Student Preparation Portal
               </div>
@@ -115,14 +115,14 @@ export default function StudentLoginPage() {
               </h1>
 
               {/* Description */}
-              <p className="mt-6 text-lg leading-8 text-slate-600 dark:text-slate-400 max-w-lg">
+              <p className="mt-4 text-lg leading-7 text-slate-600 dark:text-slate-400 max-w-lg">
                 Practice your credibility interview before your university
                 interview and build confidence in answering questions clearly
                 and naturally.
               </p>
 
               {/* Feature list */}
-              <div className="mt-9 space-y-4">
+              <div className="mt-6 space-y-3">
 
                 {/* Feature 1 */}
                 <div className="flex items-center gap-3">
@@ -178,7 +178,7 @@ export default function StudentLoginPage() {
               </div>
 
               {/* Assessment information */}
-              <div className="mt-10 flex items-center gap-3">
+              <div className="mt-6 flex items-center gap-3">
                 <div className="flex -space-x-1">
                   <div className="w-8 h-8 rounded-full bg-blue-500/10 border-2 border-slate-50 dark:border-slate-950 flex items-center justify-center">
                     <Mic className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
@@ -205,7 +205,7 @@ export default function StudentLoginPage() {
               </div>
 
               {/* Security line */}
-              <div className="mt-10 pt-6 border-t border-slate-200 dark:border-slate-800">
+              <div className="mt-6 pt-5 border-t border-slate-200 dark:border-slate-800">
                 <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-500">
                   <Lock className="w-3.5 h-3.5" />
                   <span>Your assessment access is securely protected</span>
@@ -231,7 +231,7 @@ export default function StudentLoginPage() {
                 </div>
 
                 {/* Icon */}
-                <div className="flex justify-center mb-6">
+                <div className="flex justify-center mb-4">
                   <div className="relative">
 
                     <div className="absolute inset-0 rounded-2xl bg-blue-500/20 blur-xl" />
@@ -270,7 +270,7 @@ export default function StudentLoginPage() {
                 )}
 
                 {/* Login form */}
-                <form onSubmit={handleLogin} className="mt-7 space-y-5">
+                <form onSubmit={handleLogin} className="mt-5 space-y-4">
 
                   {/* Student ID */}
                   <div>
@@ -351,7 +351,7 @@ export default function StudentLoginPage() {
                 </form>
 
                 {/* Security note */}
-                <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800">
+                <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800">
                   <div className="flex items-center justify-center gap-2 text-[11px] text-slate-400 dark:text-slate-500">
                     <CheckCircle2 className="w-3.5 h-3.5 text-blue-500" />
 
@@ -364,7 +364,7 @@ export default function StudentLoginPage() {
               </div>
 
               {/* Back button + footer */}
-              <div className="mt-5 text-center space-y-3">
+              <div className="mt-4 text-center space-y-2">
 
                 <Link
                   href="/"
