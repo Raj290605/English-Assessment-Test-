@@ -13,7 +13,7 @@ export default async function StudentAttemptsPage() {
     redirect('/login');
   }
 
-  let assessmentDetails = {
+  let assessmentDetails: any = {
     assessment: null,
     assessments: [],
     questions: [],
