@@ -58,23 +58,16 @@ export function generateUploadSignature(
 export function generateSignedPlaybackUrl(publicId: string, durationSec: number = 3600): string {
   const expiresAt = Math.floor(Date.now() / 1000) + durationSec;
 
-  try {
-    // Generate signed authenticated URL for private video streaming
-    const signedUrl = cloudinary.utils.private_download_url(publicId, 'webm', {
-      resource_type: 'video',
-      type: 'authenticated',
-      expires_at: expiresAt,
-    });
-    return signedUrl;
-  } catch (err) {
-    // Fallback URL generation with sign_url option
-    const url = cloudinary.url(publicId, {
-      resource_type: 'video',
-      type: 'authenticated',
-      sign_url: true,
-      expires_at: expiresAt,
-      secure: true,
-    });
-    return url;
-  }
+  // Generate a signed authenticated URL suitable for HTML5 <video> playback.
+  // We use cloudinary.url with sign_url: true instead of private_download_url
+  // to prevent browsers from forcing an attachment download.
+  const url = cloudinary.url(publicId, {
+    resource_type: 'video',
+    type: 'authenticated',
+    sign_url: true,
+    expires_at: expiresAt,
+    secure: true,
+  });
+  
+  return url;
 }

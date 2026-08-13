@@ -33,10 +33,7 @@ export async function POST(request: Request) {
 
       // Check access permission: Must be Admin OR owning Student
       if (session.role !== 'ADMIN') {
-        const student = await prisma.user.findUnique({
-          where: { id: responseRecord.assessment.studentId },
-        });
-        if (!student || student.studentId !== session.studentId) {
+        if (responseRecord.assessment.studentId !== session.id) {
           return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
       }

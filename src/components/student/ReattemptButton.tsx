@@ -36,20 +36,20 @@ export function ReattemptButton() {
   };
 
   return (
-    <div className="mt-4">
+    <>
       {error && (
-        <div className="mb-3 text-sm text-red-500 bg-red-50 dark:bg-red-900/10 p-3 rounded-lg border border-red-200 dark:border-red-800">
+        <div className="fixed bottom-4 right-4 z-50 text-sm text-white bg-red-600 p-4 rounded-xl shadow-lg font-medium max-w-sm">
           {error}
         </div>
       )}
       <button
         onClick={handleReattempt}
         disabled={loading}
-        className="w-full py-3 px-6 bg-white dark:bg-slate-900 border-2 border-blue-600 dark:border-blue-500 text-blue-600 dark:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 font-bold rounded-xl shadow-sm flex items-center justify-center gap-3 transition-all hover:scale-[1.01] disabled:opacity-50"
+        className="w-full h-full flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
       >
-        <RefreshCcw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
-        {loading ? 'Starting New Attempt...' : 'Start New Attempt'}
+        <RefreshCcw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+        {loading ? 'Starting...' : 'Start New Attempt'}
       </button>
-    </div>
+    </>
   );
 }
