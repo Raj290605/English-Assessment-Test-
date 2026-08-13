@@ -20,8 +20,8 @@ export default async function StudentDashboardPage(props: any) {
     redirect('/login');
   }
 
-  let assessmentDetails: { assessment: any; assessments: any[]; questions: any[] } = {
-    assessment: { status: 'NOT_STARTED', responses: [] },
+  let assessmentDetails: Awaited<ReturnType<typeof getStudentAssessmentDetails>> = {
+    assessment: null,
     assessments: [],
     questions: [],
   };

@@ -15,7 +15,7 @@ export default async function StudentResultsPage(props: any) {
     redirect('/login');
   }
 
-  let assessmentDetails: { assessment: any; assessments: any[]; questions: any[] } = {
+  let assessmentDetails: Awaited<ReturnType<typeof getStudentAssessmentDetails>> = {
     assessment: null,
     assessments: [],
     questions: [],

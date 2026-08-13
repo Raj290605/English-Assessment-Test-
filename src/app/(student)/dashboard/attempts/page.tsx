@@ -13,7 +13,7 @@ export default async function StudentAttemptsPage() {
     redirect('/login');
   }
 
-  let assessmentDetails: any = {
+  let assessmentDetails: Awaited<ReturnType<typeof getStudentAssessmentDetails>> = {
     assessment: null,
     assessments: [],
     questions: [],
