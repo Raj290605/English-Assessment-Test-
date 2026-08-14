@@ -4,7 +4,11 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { RefreshCcw } from 'lucide-react';
 
-export function ReattemptButton() {
+interface ReattemptButtonProps {
+  compact?: boolean;
+}
+
+export function ReattemptButton({ compact = false }: ReattemptButtonProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -45,7 +49,9 @@ export function ReattemptButton() {
       <button
         onClick={handleReattempt}
         disabled={loading}
-        className="w-full h-full flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+        className={`flex items-center justify-center gap-2 transition-colors disabled:opacity-50 ${
+          compact ? 'w-full h-full' : ''
+        }`}
       >
         <RefreshCcw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
         {loading ? 'Starting...' : 'Start New Attempt'}

@@ -133,15 +133,13 @@ export async function saveOverallEvaluation(data: {
   strengths: string;
   areasForImprovement: string;
 }) {
-  const overallScore = Number(
-    (
-      (data.fluencyScore +
-        data.grammarScore +
-        data.pronunciationScore +
-        data.vocabularyScore +
-        data.confidenceScore) /
-      5
-    ).toFixed(1)
+  const overallScore = Math.round(
+    (data.fluencyScore +
+      data.grammarScore +
+      data.pronunciationScore +
+      data.vocabularyScore +
+      data.confidenceScore) /
+    5
   );
 
   const evaluation = await prisma.overallEvaluation.upsert({

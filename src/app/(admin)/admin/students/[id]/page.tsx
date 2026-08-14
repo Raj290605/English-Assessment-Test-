@@ -184,8 +184,8 @@ export default function StudentReviewPage() {
     );
   }
 
-  const calculatedOverallScore = Number(
-    ((fluencyScore + grammarScore + pronunciationScore + vocabularyScore + confidenceScore) / 5).toFixed(1)
+  const calculatedOverallScore = Math.round(
+    (fluencyScore + grammarScore + pronunciationScore + vocabularyScore + confidenceScore) / 5
   );
 
   return (
