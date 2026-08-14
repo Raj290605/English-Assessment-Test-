@@ -90,7 +90,7 @@ export default function AssessmentWizardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center text-slate-500 dark:text-slate-400 transition-colors duration-200">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center text-slate-500">
         <div className="text-center space-y-3">
           <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-sm font-medium">Loading Assessment Questions...</p>
@@ -134,18 +134,18 @@ export default function AssessmentWizardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col transition-colors duration-200">
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       <Navbar user={user} />
 
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-6 space-y-6">
         {/* Progress Header Bar */}
         <div className="glass-panel p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
-            <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-blue-600 uppercase tracking-wider">
               Question {currentIndex + 1} of {questions.length}
             </span>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-              Progress: <span className="text-blue-600 dark:text-blue-400 font-mono">{totalAnswered}</span> / 20 Answered
+            <h2 className="text-lg font-bold text-slate-900">
+              Progress: <span className="text-blue-600 font-mono">{totalAnswered}</span> / 20 Answered
             </h2>
           </div>
 
@@ -162,8 +162,8 @@ export default function AssessmentWizardPage() {
                     isCurrent
                       ? 'bg-blue-600 text-white ring-2 ring-blue-400'
                       : isSaved
-                      ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/40'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                      ? 'bg-emerald-500/20 text-emerald-600 border border-emerald-500/40'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
                   title={`Question ${q.questionNumber}: ${isSaved ? 'Saved' : 'Not Saved'}`}
                 >
@@ -175,7 +175,7 @@ export default function AssessmentWizardPage() {
         </div>
 
         {error && (
-          <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-sm flex items-center gap-2">
+          <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 text-sm flex items-center gap-2">
             <AlertCircle className="w-5 h-5 shrink-0" />
             <span>{error}</span>
           </div>
@@ -186,26 +186,26 @@ export default function AssessmentWizardPage() {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
             <div className="md:col-span-5 space-y-6">
               <div className="glass-card space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700/60 pb-3">
-                  <span className="text-xs font-mono font-bold px-2.5 py-1 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                  <span className="text-xs font-mono font-bold px-2.5 py-1 rounded bg-blue-500/10 text-blue-600 border border-blue-500/20">
                     {currentQuestion.category || 'General Speaking'}
                   </span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                  <span className="text-xs text-slate-500 font-mono">
                     Limit: {currentQuestion.timeLimitSec}s
                   </span>
                 </div>
 
                 <div className="space-y-2">
-                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                     Question Prompt #{currentQuestion.questionNumber}
                   </span>
-                  <p className="text-lg font-bold text-slate-900 dark:text-white leading-relaxed">
+                  <p className="text-lg font-bold text-slate-900 leading-relaxed">
                     "{currentQuestion.promptText}"
                   </p>
                 </div>
 
                 {isCurrentAnswered && (
-                  <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs flex items-center gap-2">
+                  <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 text-xs flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 shrink-0" />
                     <span>Response for this question has been saved and uploaded.</span>
                   </div>
@@ -231,11 +231,11 @@ export default function AssessmentWizardPage() {
         )}
 
         {/* Wizard Navigation Footer */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-800">
+        <div className="flex items-center justify-between pt-4 border-t border-slate-200">
           <button
             onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
             disabled={currentIndex === 0}
-            className="py-2.5 px-5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold rounded-xl border border-slate-300 dark:border-slate-700 flex items-center gap-2 text-sm disabled:opacity-40 transition-colors"
+            className="py-2.5 px-5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl border border-slate-300 flex items-center gap-2 text-sm disabled:opacity-40 transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
             Previous Question
@@ -264,20 +264,20 @@ export default function AssessmentWizardPage() {
 
       {/* Confirmation Submit Modal */}
       {showSubmitModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 dark:bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="glass-panel max-w-md w-full p-6 space-y-4 relative">
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <Lock className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
+            <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+              <Lock className="w-5 h-5 text-emerald-500" />
               Submit Complete Assessment?
             </h3>
-            <p className="text-slate-600 dark:text-slate-300 text-sm">
+            <p className="text-slate-600 text-sm">
               You have answered all 20 assessment questions. Once submitted, your video recordings will be locked for evaluator review and grading.
             </p>
 
-            <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
               <button
                 onClick={() => setShowSubmitModal(false)}
-                className="py-2 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-semibold transition-colors"
+                className="py-2 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-semibold transition-colors"
               >
                 Review Responses
               </button>

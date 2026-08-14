@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { Menu, Bell, ChevronDown } from 'lucide-react';
-import { ThemeToggle } from '@/components/common/ThemeProvider';
 
 interface StudentHeaderProps {
   user: any;
@@ -28,11 +27,7 @@ export function StudentHeader({ user, onOpenSidebar }: StudentHeaderProps) {
         </div>
       </div>
 
-      <div className="flex items-center gap-5">
-        <div className="hidden sm:flex items-center gap-3 bg-slate-100/50 p-1 rounded-full border border-slate-200/50">
-          <ThemeToggle />
-        </div>
-        
+      <div className="flex items-center gap-4">
         <button className="relative p-2 text-slate-600 hover:bg-slate-50 rounded-full border border-slate-200 transition-colors bg-white">
           <Bell className="w-5 h-5" />
           <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>

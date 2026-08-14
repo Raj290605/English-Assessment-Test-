@@ -175,7 +175,7 @@ export default function StudentReviewPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center text-slate-500 dark:text-slate-400 transition-colors duration-200">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center text-slate-500">
         <div className="text-center space-y-3">
           <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-sm font-medium">Loading Student Submissions...</p>
@@ -189,7 +189,7 @@ export default function StudentReviewPage() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col transition-colors duration-200">
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       <Navbar user={user} />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-6 space-y-6">
@@ -197,7 +197,7 @@ export default function StudentReviewPage() {
         <div className="flex items-center justify-between">
           <Link
             href="/admin/dashboard"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-emerald-600 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Student List
@@ -208,27 +208,27 @@ export default function StudentReviewPage() {
           <div className="glass-panel p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{student.name}</h1>
-                <span className="text-xs text-slate-600 dark:text-slate-400 font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                <h1 className="text-2xl font-bold text-slate-900">{student.name}</h1>
+                <span className="text-xs text-slate-600 font-mono px-2 py-0.5 rounded bg-slate-100 border border-slate-200">
                   {student.studentId}
                 </span>
                 {assessment?.attemptNumber && (
-                  <span className="text-xs text-blue-600 dark:text-blue-400 font-bold px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 flex items-center gap-1">
+                  <span className="text-xs text-blue-600 font-bold px-2 py-0.5 rounded bg-blue-100 border border-blue-200 flex items-center gap-1">
                     <History className="w-3.5 h-3.5" />
                     Attempt {assessment.attemptNumber}
                   </span>
                 )}
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 Assessment Status:{' '}
-                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{assessment?.status?.replace('_', ' ') || 'NOT STARTED'}</span>
+                <span className="text-emerald-600 font-semibold">{assessment?.status?.replace('_', ' ') || 'NOT STARTED'}</span>
               </p>
             </div>
 
             {assessment?.evaluation && (
               <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-right">
-                <span className="text-xs text-emerald-600 dark:text-emerald-400 block font-semibold">Overall Evaluated Score</span>
-                <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
+                <span className="text-xs text-emerald-600 block font-semibold">Overall Evaluated Score</span>
+                <span className="text-2xl font-black text-emerald-600 font-mono">
                   {assessment.evaluation.overallScore} / 10
                 </span>
               </div>
@@ -253,13 +253,13 @@ export default function StudentReviewPage() {
                       ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30'
                       : resp
                       ? hasFeedback
-                        ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/40'
-                        : 'bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/40'
-                      : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-500 border border-slate-200 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-slate-800'
+                        ? 'bg-emerald-500/20 text-emerald-600 border border-emerald-500/40'
+                        : 'bg-blue-500/20 text-blue-600 border border-blue-500/40'
+                      : 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200'
                   }`}
                 >
                   <span>Q{q.questionNumber}</span>
-                  {hasFeedback && <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />}
+                  {hasFeedback && <CheckCircle2 className="w-3 h-3 text-emerald-600" />}
                 </button>
               );
             })}
@@ -272,23 +272,23 @@ export default function StudentReviewPage() {
             {/* Left: Video Player & Prompt */}
             <div className="lg:col-span-7 space-y-6">
               <div className="glass-card space-y-3">
-                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700/60 pb-2">
-                  <span className="font-bold text-slate-800 dark:text-slate-200">Question #{currentQuestion.questionNumber}</span>
-                  <span className="font-mono text-emerald-600 dark:text-emerald-400 font-semibold">{currentQuestion.category || 'General'}</span>
+                <div className="flex items-center justify-between text-xs text-slate-500 border-b border-slate-200 pb-2">
+                  <span className="font-bold text-slate-800">Question #{currentQuestion.questionNumber}</span>
+                  <span className="font-mono text-emerald-600 font-semibold">{currentQuestion.category || 'General'}</span>
                 </div>
-                <p className="text-base font-semibold text-slate-900 dark:text-white leading-relaxed">
+                <p className="text-base font-semibold text-slate-900 leading-relaxed">
                   "{currentQuestion.promptText}"
                 </p>
               </div>
 
               {currentResponse ? (
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 px-1">
-                    <span className="flex items-center gap-1.5 font-semibold text-slate-700 dark:text-slate-300">
-                      <Video className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <div className="flex items-center justify-between text-xs text-slate-500 px-1">
+                    <span className="flex items-center gap-1.5 font-semibold text-slate-700">
+                      <Video className="w-4 h-4 text-emerald-600" />
                       Recorded Spoken Response
                     </span>
-                    <span className="font-mono text-slate-500 dark:text-slate-400">
+                    <span className="font-mono text-slate-500">
                       Duration: {currentResponse.durationSeconds}s
                     </span>
                   </div>
@@ -309,13 +309,13 @@ export default function StudentReviewPage() {
             {/* Right: Per-Question Feedback Form */}
             <div className="lg:col-span-5">
               <div className="glass-card space-y-4">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <MessageSquare className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5 text-emerald-600" />
                   Question #{currentQuestion.questionNumber} Feedback
                 </h3>
 
                 {feedbackSuccess && (
-                  <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs flex items-center gap-2">
+                  <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 text-xs flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 shrink-0" />
                     <span>{feedbackSuccess}</span>
                   </div>
@@ -324,7 +324,7 @@ export default function StudentReviewPage() {
                 {currentResponse ? (
                   <form onSubmit={handleSaveQuestionFeedback} className="space-y-4">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                      <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
                         Question Remarks
                       </label>
                       <textarea
@@ -333,12 +333,12 @@ export default function StudentReviewPage() {
                         value={remarks}
                         onChange={(e) => setRemarks(e.target.value)}
                         placeholder="Enter general remarks regarding student's response..."
-                        className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500 transition-colors"
+                        className="w-full p-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:border-emerald-500 transition-colors"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                      <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
                         What Student Did Well (Strengths)
                       </label>
                       <textarea
@@ -346,12 +346,12 @@ export default function StudentReviewPage() {
                         value={strengths}
                         onChange={(e) => setStrengths(e.target.value)}
                         placeholder="e.g. Excellent fluency and natural pace..."
-                        className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500 transition-colors"
+                        className="w-full p-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:border-emerald-500 transition-colors"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                      <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
                         Areas to Improve
                       </label>
                       <textarea
@@ -359,12 +359,12 @@ export default function StudentReviewPage() {
                         value={needsImprovement}
                         onChange={(e) => setNeedsImprovement(e.target.value)}
                         placeholder="e.g. Work on past tense verb endings..."
-                        className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500 transition-colors"
+                        className="w-full p-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:border-emerald-500 transition-colors"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                      <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
                         Question Score (Optional 1-10)
                       </label>
                       <input
@@ -375,7 +375,7 @@ export default function StudentReviewPage() {
                         value={questionScore}
                         onChange={(e) => setQuestionScore(e.target.value === '' ? '' : Number(e.target.value))}
                         placeholder="e.g. 8"
-                        className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500 font-mono transition-colors"
+                        className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:border-emerald-500 font-mono transition-colors"
                       />
                     </div>
 
@@ -400,25 +400,25 @@ export default function StudentReviewPage() {
 
         {/* Overall Evaluation Rubric Section */}
         <div className="glass-panel p-8 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
             <div>
-              <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                <Award className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+              <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+                <Award className="w-6 h-6 text-emerald-600" />
                 Overall Assessment Evaluation Rubric
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 Evaluate candidate performance across key language metrics and save official report.
               </p>
             </div>
 
             <div className="px-5 py-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-center">
-              <span className="text-xs text-emerald-600 dark:text-emerald-400 block font-semibold">Calculated Score</span>
-              <span className="text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono">{calculatedOverallScore} / 10</span>
+              <span className="text-xs text-emerald-600 block font-semibold">Calculated Score</span>
+              <span className="text-3xl font-black text-emerald-600 font-mono">{calculatedOverallScore} / 10</span>
             </div>
           </div>
 
           {evaluationSuccess && (
-            <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-sm flex items-center gap-2">
+            <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 text-sm flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 shrink-0" />
               <span>{evaluationSuccess}</span>
             </div>
@@ -434,10 +434,10 @@ export default function StudentReviewPage() {
                 { label: 'Vocabulary', value: vocabularyScore, setter: setVocabularyScore },
                 { label: 'Confidence', value: confidenceScore, setter: setConfidenceScore },
               ].map((m) => (
-                <div key={m.label} className="p-4 rounded-xl bg-slate-100/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-2">
+                <div key={m.label} className="p-4 rounded-xl bg-slate-100/90 border border-slate-200 space-y-2">
                   <div className="flex justify-between items-center text-xs">
-                    <span className="font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">{m.label}</span>
-                    <span className="font-mono font-black text-emerald-600 dark:text-emerald-400 text-sm">{m.value} / 10</span>
+                    <span className="font-bold text-slate-800 uppercase tracking-wider">{m.label}</span>
+                    <span className="font-mono font-black text-emerald-600 text-sm">{m.value} / 10</span>
                   </div>
                   <input
                     type="range"
@@ -455,7 +455,7 @@ export default function StudentReviewPage() {
             {/* Qualitative Feedback Textareas */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                   Overall Remarks
                 </label>
                 <textarea
@@ -464,12 +464,12 @@ export default function StudentReviewPage() {
                   value={overallRemarks}
                   onChange={(e) => setOverallRemarks(e.target.value)}
                   placeholder="Comprehensive overall remarks on student's performance..."
-                  className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500 transition-colors"
+                  className="w-full p-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:border-emerald-500 transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                   General Strengths
                 </label>
                 <textarea
@@ -478,12 +478,12 @@ export default function StudentReviewPage() {
                   value={overallStrengths}
                   onChange={(e) => setOverallStrengths(e.target.value)}
                   placeholder="Key strengths observed throughout the 20 questions..."
-                  className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500 transition-colors"
+                  className="w-full p-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:border-emerald-500 transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                   Areas for Improvement
                 </label>
                 <textarea
@@ -492,7 +492,7 @@ export default function StudentReviewPage() {
                   value={overallAreasForImprovement}
                   onChange={(e) => setOverallAreasForImprovement(e.target.value)}
                   placeholder="Recommended focus areas and action items for growth..."
-                  className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:outline-none focus:border-emerald-500 transition-colors"
+                  className="w-full p-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:border-emerald-500 transition-colors"
                 />
               </div>
             </div>

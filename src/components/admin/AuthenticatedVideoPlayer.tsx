@@ -42,7 +42,7 @@ export function AuthenticatedVideoPlayer({ responseId, publicId, fallbackUrl }: 
   }, [responseId, publicId]);
 
   return (
-    <div className="relative aspect-video w-full bg-slate-950 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-2xl flex items-center justify-center">
+    <div className="relative aspect-video w-full bg-slate-950 rounded-2xl overflow-hidden border border-slate-200 shadow-2xl flex items-center justify-center">
       {loading && (
         <div className="text-center space-y-2 text-slate-400">
           <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto" />

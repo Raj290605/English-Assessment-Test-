@@ -250,51 +250,51 @@ export function MediaRecorderComponent({
   return (
     <div className="space-y-4">
       {/* Status Bar */}
-      <div className="flex items-center justify-between p-3 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 transition-colors">
+      <div className="flex items-center justify-between p-3 rounded-xl bg-slate-100 border border-slate-200">
         <div className="flex items-center gap-2">
           {status === 'RECORDING' && (
-            <span className="flex items-center gap-2 text-rose-600 dark:text-rose-400 font-bold text-xs uppercase tracking-wider">
+            <span className="flex items-center gap-2 text-rose-600 font-bold text-xs uppercase tracking-wider">
               <span className="w-3 h-3 rounded-full bg-rose-500 animate-recording" />
               Recording In Progress
             </span>
           )}
           {status === 'STOPPED' && (
-            <span className="text-amber-600 dark:text-amber-400 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5">
+            <span className="text-amber-600 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5">
               <Clock className="w-4 h-4" /> Ready for Review
             </span>
           )}
           {status === 'UPLOADING' && (
-            <span className="text-blue-600 dark:text-blue-400 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5">
+            <span className="text-blue-600 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5">
               <Upload className="w-4 h-4 animate-bounce" /> Uploading Video to Secure Cloud...
             </span>
           )}
           {status === 'SAVED' && (
-            <span className="text-emerald-600 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5">
+            <span className="text-emerald-600 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4" /> Response Saved & Uploaded
             </span>
           )}
           {status === 'IDLE' && (
-            <span className="text-slate-600 dark:text-slate-400 font-semibold text-xs uppercase tracking-wider flex items-center gap-1.5">
+            <span className="text-slate-600 font-semibold text-xs uppercase tracking-wider flex items-center gap-1.5">
               <Video className="w-4 h-4" /> Camera Ready
             </span>
           )}
         </div>
 
         {/* Timer */}
-        <div className="font-mono text-sm font-bold text-slate-800 dark:text-slate-200 px-3 py-1 rounded bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
+        <div className="font-mono text-sm font-bold text-slate-800 px-3 py-1 rounded bg-slate-200 border border-slate-300">
           {formatTime(elapsed)} / {formatTime(timeLimitSec)}
         </div>
       </div>
 
       {errorMessage && (
-        <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs flex items-center gap-2">
+        <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-600 text-xs flex items-center gap-2">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{errorMessage}</span>
         </div>
       )}
 
       {/* Video Viewport Container */}
-      <div className="relative aspect-video w-full bg-slate-950 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-2xl flex items-center justify-center">
+      <div className="relative aspect-video w-full bg-slate-950 rounded-2xl overflow-hidden border border-slate-200 shadow-2xl flex items-center justify-center">
         {/* Live Camera Stream */}
         {status !== 'STOPPED' && status !== 'UPLOADING' && status !== 'SAVED' && (
           <video
@@ -356,7 +356,7 @@ export function MediaRecorderComponent({
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <button
               onClick={resetRecording}
-              className="py-2.5 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl border border-slate-300 dark:border-slate-700 flex items-center gap-2 text-xs transition-colors"
+              className="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl border border-slate-300 flex items-center gap-2 text-xs transition-colors"
             >
               <RefreshCw className="w-4 h-4" />
               Re-record Video
