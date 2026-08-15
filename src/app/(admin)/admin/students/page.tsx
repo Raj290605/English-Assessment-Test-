@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { UserPlus, Search, ArrowRight, Video, CheckCircle2, ChevronDown, ChevronRight, Clock } from 'lucide-react';
+import { UserPlus, Search, ArrowRight, Video, CheckCircle2, ChevronDown, ChevronRight, Clock, Trash2, AlertTriangle } from 'lucide-react';
 import { AdminDashboardShell } from '@/components/admin/AdminDashboardShell';
 import { CreateStudentModal } from '@/components/admin/CreateStudentModal';
 
@@ -38,6 +38,12 @@ export default function AdminStudentsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [expandedStudentId, setExpandedStudentId] = useState<string | null>(null);
+
+  // Delete attempt state
+  const [assessmentToDelete, setAssessmentToDelete] = useState<StudentAssessmentRow | null>(null);
+  const [isDeletingAttempt, setIsDeletingAttempt] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     try {
@@ -118,6 +124,30 @@ export default function AdminStudentsPage() {
 
   const toggleExpand = (studentId: string) => {
     setExpandedStudentId(prev => (prev === studentId ? null : studentId));
+  };
+
+  const handleDeleteAttempt = async () => {
+    if (!assessmentToDelete || !assessmentToDelete.assessmentId) return;
+    setIsDeletingAttempt(true);
+    setDeleteError(null);
+    setDeleteSuccess(null);
+
+    try {
+      const res = await fetch(`/api/admin/assessments/${assessmentToDelete.assessmentId}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to delete assessment');
+
+      setDeleteSuccess(`Attempt #${assessmentToDelete.attemptNumber} deleted. Remaining attempts have been renumbered.`);
+      setAssessmentToDelete(null);
+      await loadData();
+    } catch (err: any) {
+      setDeleteError(err.message);
+      await loadData();
+    } finally {
+      setIsDeletingAttempt(false);
+    }
   };
 
   const renderStatusBadge = (status: string, isAttemptRow: boolean = false) => {
@@ -297,23 +327,36 @@ export default function AdminStudentsPage() {
                                             {attempt.evaluation?.overallScore !== undefined && attempt.evaluation?.overallScore !== null ? `${attempt.evaluation.overallScore} / 10` : '—'}
                                           </td>
                                           <td className="px-4 py-3 text-right">
-                                            {attempt.status === 'SUBMITTED' ? (
-                                              <Link
-                                                href={`/admin/students/${student.id}?assessmentId=${attempt.assessmentId}`}
-                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#1E3A8A] text-white hover:bg-blue-800 rounded-lg text-[11px] font-bold transition-all shadow-sm"
-                                              >
-                                                Review &rarr;
-                                              </Link>
-                                            ) : attempt.status === 'EVALUATED' || attempt.evaluation ? (
-                                              <Link
-                                                href={`/admin/students/${student.id}?assessmentId=${attempt.assessmentId}`}
-                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50 rounded-lg text-[11px] font-bold transition-all shadow-sm"
-                                              >
-                                                View Evaluation &rarr;
-                                              </Link>
-                                            ) : (
-                                              <span className="text-[11px] text-slate-400 italic">Not ready</span>
-                                            )}
+                                            <div className="flex items-center justify-end gap-2">
+                                              {attempt.status === 'SUBMITTED' ? (
+                                                <Link
+                                                  href={`/admin/students/${student.id}?assessmentId=${attempt.assessmentId}`}
+                                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#1E3A8A] text-white hover:bg-blue-800 rounded-lg text-[11px] font-bold transition-all shadow-sm"
+                                                >
+                                                  Review &rarr;
+                                                </Link>
+                                              ) : attempt.status === 'EVALUATED' || attempt.evaluation ? (
+                                                <Link
+                                                  href={`/admin/students/${student.id}?assessmentId=${attempt.assessmentId}`}
+                                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50 rounded-lg text-[11px] font-bold transition-all shadow-sm"
+                                                >
+                                                  View Evaluation &rarr;
+                                                </Link>
+                                              ) : (
+                                                <span className="text-[11px] text-slate-400 italic">Not ready</span>
+                                              )}
+                                              {/* Delete button — hidden for IN_PROGRESS */}
+                                              {attempt.status !== 'IN_PROGRESS' && attempt.assessmentId && (
+                                                <button
+                                                  onClick={(e) => { e.stopPropagation(); setDeleteError(null); setDeleteSuccess(null); setAssessmentToDelete(attempt); }}
+                                                  title={`Delete Attempt #${attempt.attemptNumber}`}
+                                                  className="p-1.5 rounded-lg text-rose-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-all"
+                                                  aria-label={`Delete Attempt ${attempt.attemptNumber}`}
+                                                >
+                                                  <Trash2 className="w-3.5 h-3.5" />
+                                                </button>
+                                              )}
+                                            </div>
                                           </td>
                                         </tr>
                                       ))}
@@ -362,6 +405,111 @@ export default function AdminStudentsPage() {
         onClose={() => setIsCreateModalOpen(false)}
         onSuccess={loadData}
       />
+
+      {/* ── Delete Attempt Confirmation Modal ─────────────────────────────── */}
+      {assessmentToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" aria-modal="true" role="dialog">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            onClick={() => { if (!isDeletingAttempt) { setAssessmentToDelete(null); setDeleteError(null); } }}
+          />
+          {/* Dialog */}
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-5">
+            {/* Header */}
+            <div className="flex items-start gap-3">
+              <div className="shrink-0 w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center">
+                <AlertTriangle className="w-5 h-5 text-rose-600" />
+              </div>
+              <div>
+                <h2 className="text-[16px] font-bold text-slate-900">
+                  Delete Attempt #{assessmentToDelete.attemptNumber}?
+                </h2>
+                <p className="text-[12px] text-slate-500 mt-0.5">This action cannot be undone.</p>
+              </div>
+            </div>
+
+            {/* Attempt details */}
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-1.5 text-[12px]">
+              <div className="flex justify-between">
+                <span className="text-slate-500 font-medium">Student</span>
+                <span className="font-semibold text-slate-800">
+                  {/* Find student name from grouped data */}
+                  {groupedStudents.find(s => s.attempts.some(a => a.assessmentId === assessmentToDelete.assessmentId))?.name ?? '—'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500 font-medium">Attempt</span>
+                <span className="font-semibold text-slate-800">#{assessmentToDelete.attemptNumber}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500 font-medium">Status</span>
+                <span className="font-semibold text-slate-800">{assessmentToDelete.status.replace('_', ' ')}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500 font-medium">Score</span>
+                <span className="font-semibold text-slate-800">
+                  {assessmentToDelete.evaluation?.overallScore != null ? `${assessmentToDelete.evaluation.overallScore} / 10` : '—'}
+                </span>
+              </div>
+              {assessmentToDelete.submittedAt && (
+                <div className="flex justify-between">
+                  <span className="text-slate-500 font-medium">Submitted</span>
+                  <span className="font-semibold text-slate-800">
+                    {new Date(assessmentToDelete.submittedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Warning text */}
+            <p className="text-[12px] text-slate-600 leading-relaxed">
+              This will permanently delete this assessment attempt, including its responses,
+              recording references, evaluation, and feedback.
+              Any remaining attempts will be automatically renumbered.
+            </p>
+
+            {/* Error message */}
+            {deleteError && (
+              <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-[12px] flex items-start gap-2">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                <span>{deleteError}</span>
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-3 pt-1">
+              <button
+                onClick={() => { setAssessmentToDelete(null); setDeleteError(null); }}
+                disabled={isDeletingAttempt}
+                className="px-4 py-2 rounded-xl text-[13px] font-semibold text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAttempt}
+                disabled={isDeletingAttempt}
+                className="px-4 py-2 rounded-xl text-[13px] font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-sm shadow-rose-600/20 transition-all disabled:opacity-50 flex items-center gap-2"
+              >
+                {isDeletingAttempt ? (
+                  <><div className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />Deleting…</>
+                ) : (
+                  <><Trash2 className="w-3.5 h-3.5" />Delete Attempt</>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Success Toast ────────────────────────────────────────────────── */}
+      {deleteSuccess && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2.5 px-5 py-3 bg-emerald-700 text-white rounded-xl shadow-lg text-[13px] font-semibold animate-in slide-in-from-bottom-4 duration-300">
+          <CheckCircle2 className="w-4 h-4 shrink-0" />
+          {deleteSuccess}
+          <button onClick={() => setDeleteSuccess(null)} className="ml-2 opacity-70 hover:opacity-100">✕</button>
+        </div>
+      )}
     </AdminDashboardShell>
   );
 }
