@@ -1,46 +1,228 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Navbar } from '@/components/common/Navbar';
-import { ShieldCheck, Search, Filter, CheckCircle2, Clock, Award, ArrowRight, UserPlus, Trash2, ChevronDown, ChevronRight, CornerDownRight } from 'lucide-react';
+import {
+  Bell,
+  UserPlus,
+  Video,
+  ArrowRight,
+  CheckCircle2,
+  Clock,
+  Users,
+  ChevronDown,
+  Shield,
+} from 'lucide-react';
+import { AdminDashboardShell } from '@/components/admin/AdminDashboardShell';
 import { CreateStudentModal } from '@/components/admin/CreateStudentModal';
+import { CreateAdminModal } from '@/components/admin/CreateAdminModal';
 
-interface StudentListItem {
-  id: string;
-  studentId: string;
-  name: string;
-  assessmentId: string | null;
-  attemptNumber: number;
-  status: string;
-  responsesCount: number;
-  submittedAt: string | null;
-  evaluation: {
-    id: string;
-    overallScore: number | null;
-  } | null;
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface DashboardStats {
+  totalStudents: number;
+  pendingReview: number;
+  evaluated: number;
+  inProgress: number;
+  pendingList: PendingItem[];
+  recentActivity: ActivityItem[];
 }
+
+interface PendingItem {
+  assessmentId: string;
+  studentDbId: string;
+  studentId: string;
+  studentName: string;
+  attemptNumber: number;
+  submittedAt: string | null;
+  responsesCount: number;
+}
+
+interface ActivityItem {
+  type: 'evaluated' | 'submitted' | 'student_added';
+  studentName: string;
+  studentId: string;
+  timestamp: string;
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Returns a compact relative or absolute date label. */
+function formatSubmittedAt(iso: string | null): string {
+  if (!iso) return '—';
+  const date = new Date(iso);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffDays = Math.floor(diffMs / 86_400_000);
+
+  const timeStr = date.toLocaleTimeString('en-IN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+
+  if (diffDays === 0) return `Today · ${timeStr}`;
+  if (diffDays === 1) return `Yesterday · ${timeStr}`;
+  return date.toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+  });
+}
+
+/** Returns relative label like "10:42 AM", "Yesterday", or "Aug 12". */
+function formatActivityTime(iso: string): string {
+  const date = new Date(iso);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffDays = Math.floor(diffMs / 86_400_000);
+
+  if (diffDays === 0) {
+    return date.toLocaleTimeString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+  }
+  if (diffDays === 1) return 'Yesterday';
+  return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+}
+
+/** Generates 1–2 char initials from a full name. */
+function initials(name: string): string {
+  return name
+    .split(' ')
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase();
+}
+
+/** Greeting based on hour. */
+function greeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+/** A single pending assessment row — inbox/task style. */
+function PendingEvaluationItem({ item }: { item: PendingItem }) {
+  const href = `/admin/students/${item.studentDbId}?assessmentId=${item.assessmentId}`;
+
+  return (
+    <div className="flex items-center gap-4 py-4 px-5 hover:bg-slate-50/80 transition-colors group border-b border-slate-100 last:border-b-0">
+      {/* Avatar */}
+      <div className="w-10 h-10 rounded-full bg-[#0D2342] text-white flex items-center justify-center font-bold text-sm shrink-0 border border-slate-200">
+        {initials(item.studentName)}
+      </div>
+
+      {/* Info */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[14px] font-semibold text-slate-900 leading-tight">
+            {item.studentName}
+          </span>
+        </div>
+        <div className="flex items-center gap-2 mt-0.5 text-[12px] text-slate-500 flex-wrap">
+          <span className="font-mono">{item.studentId}</span>
+          <span className="text-slate-300">·</span>
+          <span>Attempt {item.attemptNumber}</span>
+          <span className="text-slate-300">·</span>
+          <span>{formatSubmittedAt(item.submittedAt)}</span>
+          <span className="text-slate-300">·</span>
+          <span className="flex items-center gap-1">
+            <Video className="w-3 h-3 text-slate-400" />
+            {item.responsesCount} responses
+          </span>
+        </div>
+      </div>
+
+      {/* Status + action */}
+      <div className="flex items-center gap-3 shrink-0">
+        <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-50 border border-amber-200 text-amber-700">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block" />
+          Ready for Review
+        </span>
+
+        <Link
+          href={href}
+          className="flex items-center gap-1 text-[13px] font-semibold text-[#2563EB] hover:text-blue-800 transition-colors whitespace-nowrap group-hover:underline"
+        >
+          Review
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/** Empty state when no assessments are pending. */
+function NoPendingState() {
+  return (
+    <div className="flex flex-col items-center justify-center py-14 px-8 text-center">
+      <div className="w-12 h-12 rounded-full bg-green-50 border border-green-200 flex items-center justify-center mb-4">
+        <CheckCircle2 className="w-6 h-6 text-green-600" />
+      </div>
+      <p className="text-[15px] font-semibold text-slate-800">You're all caught up</p>
+      <p className="text-[13px] text-slate-500 mt-1 mb-5">
+        No assessments are waiting for review.
+      </p>
+      <Link
+        href="/admin/students"
+        className="text-[13px] font-semibold text-[#2563EB] hover:text-blue-800 transition-colors flex items-center gap-1"
+      >
+        View all students
+        <ArrowRight className="w-3.5 h-3.5" />
+      </Link>
+    </div>
+  );
+}
+
+/** Activity icon per event type. */
+function ActivityIcon({ type }: { type: ActivityItem['type'] }) {
+  const base = 'w-7 h-7 rounded-full flex items-center justify-center shrink-0';
+  if (type === 'evaluated')
+    return (
+      <div className={`${base} bg-green-50 border border-green-200`}>
+        <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
+      </div>
+    );
+  if (type === 'submitted')
+    return (
+      <div className={`${base} bg-blue-50 border border-blue-200`}>
+        <ArrowRight className="w-3.5 h-3.5 text-blue-600" />
+      </div>
+    );
+  return (
+    <div className={`${base} bg-slate-100 border border-slate-200`}>
+      <UserPlus className="w-3.5 h-3.5 text-slate-600" />
+    </div>
+  );
+}
+
+/** Activity label per event type. */
+function activityLabel(type: ActivityItem['type']): string {
+  if (type === 'evaluated') return 'Evaluation completed';
+  if (type === 'submitted') return 'Assessment submitted';
+  return 'Student added';
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function AdminDashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
-  const [students, setStudents] = useState<StudentListItem[]>([]);
-  const [search, setSearch] = useState('');
-  const [filterStatus, setFilterStatus] = useState<string>('ALL');
+  const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [expandedStudents, setExpandedStudents] = useState<Record<string, boolean>>({});
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
 
-  const toggleExpand = (studentId: string) => {
-    setExpandedStudents((prev) => ({
-      ...prev,
-      [studentId]: !prev[studentId],
-    }));
-  };
-
-  const loadAdminData = async () => {
+  const loadData = useCallback(async () => {
     try {
+      // Auth check
       const meRes = await fetch('/api/auth/me');
       const meData = await meRes.json();
       if (!meRes.ok || meData.user?.role !== 'ADMIN') {
@@ -49,310 +231,369 @@ export default function AdminDashboardPage() {
       }
       setUser(meData.user);
 
-      const res = await fetch('/api/admin/students');
-      const data = await res.json();
-      if (res.ok) {
-        setStudents(data.students || []);
+      // Dashboard stats
+      const statsRes = await fetch('/api/admin/dashboard-stats');
+      if (statsRes.ok) {
+        const data = await statsRes.json();
+        setStats(data);
       }
     } catch (err) {
-      console.error(err);
+      console.error('[AdminDashboard] load error:', err);
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleDeleteStudent = async (studentId: string, studentName: string) => {
-    if (!window.confirm(`Are you sure you want to delete the record for ${studentName}? This action cannot be undone.`)) {
-      return;
-    }
-
-    try {
-      const res = await fetch(`/api/admin/students/${studentId}`, {
-        method: 'DELETE',
-      });
-      
-      const data = await res.json();
-      if (res.ok) {
-        // Remove student from the list locally to avoid reloading the whole page
-        setStudents((prev) => prev.filter((s) => s.id !== studentId));
-      } else {
-        alert(data.error || 'Failed to delete student.');
-      }
-    } catch (err) {
-      console.error('Error deleting student:', err);
-      alert('An unexpected error occurred while deleting the student.');
-    }
-  };
+  }, [router]);
 
   useEffect(() => {
-    loadAdminData();
-  }, []);
+    loadData();
+  }, [loadData]);
 
-  useEffect(() => {
-    const initial: Record<string, boolean> = {};
-    students.forEach((s) => {
-      initial[s.id] = true; // Auto-expand all students
-    });
-    setExpandedStudents(initial);
-  }, [students]);
-
-  const filteredStudents = students.filter((s) => {
-    const matchesSearch =
-      s.name.toLowerCase().includes(search.toLowerCase()) ||
-      s.studentId.toLowerCase().includes(search.toLowerCase());
-
-    if (filterStatus === 'ALL') return matchesSearch;
-    if (filterStatus === 'SUBMITTED') return matchesSearch && s.status === 'SUBMITTED';
-    if (filterStatus === 'EVALUATED') return matchesSearch && s.status === 'EVALUATED';
-    if (filterStatus === 'IN_PROGRESS') return matchesSearch && (s.status === 'IN_PROGRESS' || s.status === 'NOT_STARTED');
-    return matchesSearch;
-  });
-
-  const groupedStudents = filteredStudents.reduce((acc, current) => {
-    if (!acc[current.id]) {
-      acc[current.id] = {
-        studentInfo: current,
-        attempts: []
-      };
-    }
-    if (current.assessmentId) {
-      acc[current.id].attempts.push(current);
-    }
-    return acc;
-  }, {} as Record<string, { studentInfo: StudentListItem, attempts: StudentListItem[] }>);
-
-  const groupedArray = Object.values(groupedStudents);
-
+  // ── Loading ────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center text-slate-500">
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
         <div className="text-center space-y-3">
-          <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-sm font-medium">Loading Evaluator Dashboard...</p>
+          <div className="w-7 h-7 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-sm text-slate-500 font-medium">Loading dashboard…</p>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      <Navbar user={user} />
+  const s = stats;
+  const totalPending = s?.pendingReview ?? 0;
+  const submittedToday = s?.pendingList?.filter((p) => {
+    if (!p.submittedAt) return false;
+    const d = new Date(p.submittedAt);
+    const now = new Date();
+    return d.toDateString() === now.toDateString();
+  }).length ?? 0;
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-8 space-y-8">
-        {/* Admin Header */}
-        <div className="glass-panel p-8 relative overflow-hidden">
-          <div className="absolute -right-10 -bottom-10 w-60 h-60 bg-emerald-600/10 blur-3xl rounded-full pointer-events-none" />
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+  return (
+    <AdminDashboardShell user={user}>
+
+      {/* ── Header ──────────────────────────────────────────────────────── */}
+      <div className="flex items-start justify-between gap-4 mb-7">
+        {/* Left: Greeting */}
+        <div>
+          <h1 className="text-[24px] font-bold text-slate-900 leading-tight">
+            {greeting()}, {user?.name?.split(' ')[0] || 'Admin'} 👋
+          </h1>
+          <p className="text-[14px] text-slate-500 mt-1 font-medium">
+            Here&apos;s what needs your attention today.
+          </p>
+        </div>
+
+        {/* Right: Actions + Avatar */}
+        <div className="flex items-center gap-3 shrink-0">
+          {/* Notification bell */}
+          <button className="relative p-2 text-slate-500 hover:bg-white rounded-full border border-slate-200 transition-colors bg-white shadow-sm">
+            <Bell className="w-4 h-4" />
+          </button>
+
+          {/* Admin avatar */}
+          <div className="hidden sm:flex items-center gap-2.5 bg-white border border-slate-200 rounded-xl px-3 py-2 shadow-sm">
+            <div className="w-7 h-7 rounded-full bg-[#2563EB] text-white flex items-center justify-center font-bold text-xs shrink-0">
+              {user?.name ? initials(user.name) : 'AD'}
+            </div>
+            <div className="flex flex-col leading-tight">
+              <span className="text-[12px] font-semibold text-slate-800">
+                {user?.name || 'Admin'}
+              </span>
+              <span className="text-[10px] text-slate-400 font-medium">
+                Administrator
+              </span>
+            </div>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 ml-1" />
+          </div>
+
+          {/* Add Admin button */}
+          <button
+            onClick={() => setIsAdminModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-[13px] font-semibold transition-colors shadow-sm"
+          >
+            <Shield className="w-4 h-4 text-[#2563EB]" />
+            <span className="hidden sm:inline">Add Admin</span>
+            <span className="sm:hidden">Admin</span>
+          </button>
+
+          {/* Add Student button */}
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-[#2563EB] hover:bg-blue-700 text-white rounded-xl text-[13px] font-semibold transition-colors shadow-sm"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span className="hidden sm:inline">Add Student</span>
+            <span className="sm:hidden">Add</span>
+          </button>
+        </div>
+      </div>
+
+      {/* ── Status Strip ─────────────────────────────────────────────────── */}
+      <div className="bg-white border border-slate-200 rounded-xl px-6 py-4 mb-6 shadow-sm">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {/* Students */}
+          <div className="flex flex-col gap-0.5 sm:border-r sm:border-slate-100 sm:pr-4">
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+              Students
+            </span>
+            <span className="text-[22px] font-bold text-slate-900 font-mono leading-none">
+              {s?.totalStudents ?? '—'}
+            </span>
+          </div>
+
+          {/* Pending Review — amber emphasis */}
+          <div className="flex flex-col gap-0.5 sm:border-r sm:border-slate-100 sm:pr-4">
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block" />
+              Pending Review
+            </span>
+            <span className="text-[22px] font-bold text-amber-600 font-mono leading-none">
+              {s?.pendingReview ?? '—'}
+            </span>
+          </div>
+
+          {/* Evaluated */}
+          <div className="flex flex-col gap-0.5 sm:border-r sm:border-slate-100 sm:pr-4">
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+              Evaluated
+            </span>
+            <span className="text-[22px] font-bold text-slate-900 font-mono leading-none">
+              {s?.evaluated ?? '—'}
+            </span>
+          </div>
+
+          {/* In Progress */}
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+              In Progress
+            </span>
+            <span className="text-[22px] font-bold text-slate-900 font-mono leading-none">
+              {s?.inProgress ?? '—'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Needs Your Attention ──────────────────────────────────────────── */}
+      <div className="bg-white border border-slate-200 rounded-xl shadow-sm mb-6 overflow-hidden">
+        {/* Section header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0">
+              <Video className="w-4 h-4 text-amber-600" />
+            </div>
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-semibold uppercase tracking-wider mb-3">
-                Evaluator Command Center
+              <div className="flex items-center gap-2">
+                <h2 className="text-[14px] font-bold text-slate-900 uppercase tracking-wider">
+                  Needs Your Attention
+                </h2>
+                {totalPending > 0 && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-700 border border-amber-200">
+                    {totalPending} pending
+                  </span>
+                )}
               </div>
-              <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-                Admin Evaluation Dashboard
-              </h1>
-              <p className="text-slate-500 text-sm mt-1">
-                Review student 20-question speaking recordings, enter question remarks, and evaluate scoring rubrics.
+              <p className="text-[12px] text-slate-500 mt-0.5">
+                Assessments waiting for your evaluation
               </p>
             </div>
+          </div>
 
-            <div className="flex flex-wrap items-center gap-4">
-              <button
-                onClick={() => setIsCreateModalOpen(true)}
-                className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition-all shadow-lg shadow-emerald-600/20 border border-emerald-500/30 shrink-0"
+          {totalPending > 0 && (
+            <Link
+              href="/admin/students"
+              className="flex items-center gap-1 text-[13px] font-semibold text-[#2563EB] hover:text-blue-800 transition-colors shrink-0"
+            >
+              View all
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          )}
+        </div>
+
+        {/* Sub-header count line */}
+        {totalPending > 0 && (
+          <div className="px-5 py-2.5 bg-slate-50/60 border-b border-slate-100 flex items-center gap-2 text-[12px] text-slate-500">
+            <span className="font-semibold text-slate-700">
+              {totalPending} {totalPending === 1 ? 'assessment' : 'assessments'} waiting
+            </span>
+            {submittedToday > 0 && (
+              <>
+                <span className="text-slate-300">·</span>
+                <span>{submittedToday} submitted today</span>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Pending list */}
+        {s && s.pendingList.length > 0 ? (
+          <div>
+            {s.pendingList.map((item) => (
+              <PendingEvaluationItem key={item.assessmentId} item={item} />
+            ))}
+          </div>
+        ) : (
+          <NoPendingState />
+        )}
+      </div>
+
+      {/* ── Secondary columns: Recent Activity + Assessment Status ───────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 mb-6">
+
+        {/* Recent Activity */}
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+            <h3 className="text-[13px] font-bold text-slate-700 uppercase tracking-wider">
+              Recent Activity
+            </h3>
+            <Link
+              href="/admin/students"
+              className="text-[12px] font-semibold text-[#2563EB] hover:text-blue-800 transition-colors flex items-center gap-1"
+            >
+              View all
+              <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+
+          <div className="divide-y divide-slate-100">
+            {s && s.recentActivity.length > 0 ? (
+              s.recentActivity.map((ev, i) => (
+                <div key={i} className="flex items-center gap-3 px-5 py-3.5">
+                  <ActivityIcon type={ev.type} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] font-medium text-slate-800 leading-tight truncate">
+                      {activityLabel(ev.type)}
+                    </p>
+                    <p className="text-[11px] text-slate-500 mt-0.5 font-mono truncate">
+                      {ev.studentName}
+                    </p>
+                  </div>
+                  <span className="text-[11px] text-slate-400 shrink-0">
+                    {formatActivityTime(ev.timestamp)}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className="px-5 py-8 text-center text-[13px] text-slate-400">
+                No recent activity yet.
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Assessment Status */}
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+          <div className="px-5 py-4 border-b border-slate-100">
+            <h3 className="text-[13px] font-bold text-slate-700 uppercase tracking-wider">
+              Assessment Status
+            </h3>
+          </div>
+
+          <div className="px-5 py-4 space-y-4">
+            {/* Evaluated */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5 text-[13px] text-slate-700">
+                <span className="w-2 h-2 rounded-full bg-green-500 shrink-0" />
+                Evaluated
+              </div>
+              <span className="text-[15px] font-bold text-slate-900 font-mono">
+                {s?.evaluated ?? '—'}
+              </span>
+            </div>
+
+            {/* Pending Review */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5 text-[13px] text-slate-700">
+                <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
+                Pending Review
+              </div>
+              <span className="text-[15px] font-bold text-amber-600 font-mono">
+                {s?.pendingReview ?? '—'}
+              </span>
+            </div>
+
+            {/* In Progress */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5 text-[13px] text-slate-700">
+                <span className="w-2 h-2 rounded-full bg-slate-400 shrink-0" />
+                In Progress
+              </div>
+              <span className="text-[15px] font-bold text-slate-900 font-mono">
+                {s?.inProgress ?? '—'}
+              </span>
+            </div>
+          </div>
+
+          <div className="px-5 pb-4">
+            <div className="pt-3 border-t border-slate-100">
+              <Link
+                href="/admin/students"
+                className="flex items-center gap-1 text-[12px] font-semibold text-[#2563EB] hover:text-blue-800 transition-colors"
               >
-                <UserPlus className="w-4 h-4" />
-                Add New Student
-              </button>
-              <div className="p-4 rounded-xl bg-slate-100/90 border border-slate-200 text-center">
-                <span className="text-xs text-slate-500 block font-medium">Total Candidates</span>
-                <span className="text-2xl font-black text-slate-900 font-mono">{Object.keys(groupedStudents).length || students.length}</span>
-              </div>
-              <div className="p-4 rounded-xl bg-slate-100/90 border border-slate-200 text-center">
-                <span className="text-xs text-slate-500 block font-medium">Submissions Ready</span>
-                <span className="text-2xl font-black text-emerald-600 font-mono">
-                  {students.filter((s) => s.status === 'SUBMITTED' || s.status === 'EVALUATED').length}
-                </span>
-              </div>
+                View assessments
+                <ArrowRight className="w-3 h-3" />
+              </Link>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Filter & Controls Bar */}
-        <div className="glass-panel p-4 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="relative w-full md:w-80">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by Student ID or Name..."
-              className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-100 border border-slate-300 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
-            />
-          </div>
+      {/* ── Quick Actions ─────────────────────────────────────────────────── */}
+      <div className="bg-white border border-slate-200 rounded-xl shadow-sm px-5 py-4">
+        <h3 className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-3">
+          Quick Actions
+        </h3>
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#2563EB] hover:bg-blue-700 text-white text-[13px] font-semibold transition-colors"
+          >
+            <UserPlus className="w-4 h-4" />
+            Add Student
+          </button>
+          
+          <button
+            onClick={() => setIsAdminModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[13px] font-semibold transition-colors"
+          >
+            <Shield className="w-4 h-4 text-slate-500" />
+            Add Admin
+          </button>
 
-          <div className="flex items-center gap-2 overflow-x-auto max-w-full">
-            <Filter className="w-4 h-4 text-slate-400 shrink-0 mr-1" />
-            {[
-              { id: 'ALL', label: 'All Students' },
-              { id: 'SUBMITTED', label: 'Ready for Review' },
-              { id: 'EVALUATED', label: 'Evaluated' },
-              { id: 'IN_PROGRESS', label: 'In Progress' },
-            ].map((f) => (
-              <button
-                key={f.id}
-                onClick={() => setFilterStatus(f.id)}
-                className={`py-1.5 px-3 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
-                  filterStatus === f.id
-                    ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
+          <Link
+            href="/admin/students"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[13px] font-semibold transition-colors"
+          >
+            <Clock className="w-4 h-4 text-slate-500" />
+            Review Assessments
+            <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+          </Link>
+
+          <Link
+            href="/admin/students"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[13px] font-semibold transition-colors"
+          >
+            <Users className="w-4 h-4 text-slate-500" />
+            Manage Students
+            <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+          </Link>
         </div>
+      </div>
 
-        {/* Student Table List */}
-        <div className="glass-panel overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-slate-700">
-              <thead className="bg-slate-100/80 text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200">
-                <tr>
-                  <th className="px-6 py-4">Student Name & ID</th>
-                  <th className="px-6 py-4">Attempt #</th>
-                  <th className="px-6 py-4">Assessment Status</th>
-                  <th className="px-6 py-4">Responses</th>
-                  <th className="px-6 py-4">Submitted At</th>
-                  <th className="px-6 py-4">Overall Score</th>
-                  <th className="px-6 py-4 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200/80">
-                {groupedArray.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-slate-500 text-sm">
-                      No students found matching filter parameters.
-                    </td>
-                  </tr>
-                ) : (
-                  groupedArray.map((group) => {
-                    const isExpanded = expandedStudents[group.studentInfo.id] || false;
-                    const s = group.studentInfo;
-                    const attempts = group.attempts;
-
-                    return (
-                      <React.Fragment key={s.id}>
-                        {/* Parent Row */}
-                        <tr className="hover:bg-slate-50/80 transition-colors">
-                          <td className="px-6 py-4 border-l-2 border-transparent">
-                            <div className="flex items-center gap-3">
-                              {attempts.length > 0 ? (
-                                <button 
-                                  onClick={() => toggleExpand(s.id)}
-                                  className="p-1 rounded hover:bg-slate-200 transition-colors text-slate-500"
-                                >
-                                  {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                                </button>
-                              ) : (
-                                <div className="w-6" />
-                              )}
-                              <div>
-                                <div className="font-bold text-slate-900">{s.name}</div>
-                                <div className="text-xs text-slate-500 font-mono">{s.studentId}</div>
-                              </div>
-                            </div>
-                          </td>
-                          <td colSpan={5} className="px-6 py-4">
-                            {attempts.length > 0 ? (
-                              <span className="text-sm text-slate-500">
-                                {attempts.length} Attempt{attempts.length !== 1 ? 's' : ''}
-                              </span>
-                            ) : (
-                              <span className="text-sm text-slate-500 italic">
-                                No attempts
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 text-right">
-                            <button
-                              onClick={() => handleDeleteStudent(s.id, s.name)}
-                              className="inline-flex items-center gap-1.5 py-2 px-3 bg-slate-100 hover:bg-red-600 hover:text-white text-red-600 font-semibold rounded-xl border border-slate-300 hover:border-red-500 text-xs transition-all shadow-sm hover:shadow-red-500/20"
-                              title="Delete Student Record"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </td>
-                        </tr>
-
-                        {/* Child Rows for Attempts */}
-                        {isExpanded && attempts.map((attempt) => (
-                          <tr key={attempt.assessmentId} className="bg-slate-50/40 hover:bg-slate-100/60 transition-colors">
-                            <td className="px-6 py-3 pl-14">
-                              <div className="flex items-center gap-2 text-slate-600">
-                                <CornerDownRight className="w-4 h-4 text-slate-400" />
-                                <span className="font-semibold text-sm">Attempt {attempt.attemptNumber}</span>
-                              </div>
-                            </td>
-                            <td className="px-6 py-3">
-                              {/* Empty for Attempt # column, already displayed in name column */}
-                            </td>
-                            <td className="px-6 py-3">
-                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
-                                attempt.status === 'EVALUATED'
-                                  ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
-                                  : attempt.status === 'SUBMITTED'
-                                  ? 'bg-blue-500/10 text-blue-600 border border-blue-500/20'
-                                  : attempt.status === 'IN_PROGRESS'
-                                  ? 'bg-amber-500/10 text-amber-600 border border-amber-500/20'
-                                  : 'bg-slate-100 text-slate-500 border border-slate-300'
-                              }`}>
-                                {attempt.status === 'EVALUATED' && <Award className="w-3.5 h-3.5" />}
-                                {attempt.status === 'SUBMITTED' && <CheckCircle2 className="w-3.5 h-3.5" />}
-                                {attempt.status.replace('_', ' ')}
-                              </span>
-                            </td>
-                            <td className="px-6 py-3 font-mono font-bold text-slate-800 text-sm">
-                              {attempt.responsesCount} / 20
-                            </td>
-                            <td className="px-6 py-3 text-xs text-slate-500">
-                              {attempt.submittedAt ? new Date(attempt.submittedAt).toLocaleDateString() : '—'}
-                            </td>
-                            <td className="px-6 py-3">
-                              {attempt.evaluation?.overallScore ? (
-                                <span className="px-3 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 font-mono font-extrabold text-sm border border-emerald-500/20">
-                                  {attempt.evaluation.overallScore} / 10
-                                </span>
-                              ) : (
-                                <span className="text-xs text-slate-400 italic">Not graded</span>
-                              )}
-                            </td>
-                            <td className="px-6 py-3 text-right">
-                              <Link
-                                href={`/admin/students/${s.id}?assessmentId=${attempt.assessmentId}`}
-                                className="inline-flex items-center gap-1.5 py-1.5 px-3 bg-white hover:bg-emerald-600 hover:text-white text-emerald-600 font-semibold rounded-lg border border-slate-300 hover:border-emerald-500 text-xs transition-all shadow-sm hover:shadow-emerald-500/20"
-                              >
-                                Review & Grade
-                                <ArrowRight className="w-3.5 h-3.5" />
-                              </Link>
-                            </td>
-                          </tr>
-                        ))}
-                      </React.Fragment>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </main>
-
+      {/* ── Create Student Modal ──────────────────────────────────────────── */}
       <CreateStudentModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        onSuccess={loadAdminData}
+        onSuccess={loadData}
       />
-    </div>
+
+      {/* ── Create Admin Modal ────────────────────────────────────────────── */}
+      <CreateAdminModal
+        isOpen={isAdminModalOpen}
+        onClose={() => setIsAdminModalOpen(false)}
+        onSuccess={loadData}
+      />
+    </AdminDashboardShell>
   );
 }
