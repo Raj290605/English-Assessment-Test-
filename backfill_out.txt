@@ -1,0 +1,8 @@
+Starting exact backfill for QuestionResponse promptSnapshot...
+
+--- VERIFICATION ---
+QuestionResponse Count Before: 9
+QuestionResponse Count After: 9
+Responses with non-null promptSnapshot: 9
+
+SUCCESS! Backfill completed perfectly with 0 data loss and exact counts.

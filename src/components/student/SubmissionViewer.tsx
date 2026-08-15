@@ -78,11 +78,12 @@ export function SubmissionViewer({ assessment, questions, allAssessments }: Subm
                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
                   Question {selectedQNum} of {totalCount}
                 </div>
-                <p className="text-[14px] text-slate-800 font-medium leading-relaxed">
-                  {currentQuestion
-                    ? currentQuestion.promptText || currentQuestion.text || 'Question text not available'
-                    : 'Question text not available'}
-                </p>
+                <h3 className="text-slate-800 font-bold leading-relaxed">
+                  {currentResponse?.promptSnapshot || 
+                   (currentQuestion
+                      ? currentQuestion.promptText || currentQuestion.text || 'Question text not available'
+                      : 'Question text not available')}
+                </h3>
               </div>
             </div>
           </div>

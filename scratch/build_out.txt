@@ -1,0 +1,84 @@
+
+> english-assessment-platform@0.1.0 build
+> prisma generate && next build
+
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+
+✔ Generated Prisma Client (v6.19.3) to .\node_modules\@prisma\client in 428ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Need your database queries to be 1000x faster? Accelerate offers you that and more: https://pris.ly/tip-2-accelerate
+
+▲ Next.js 16.3.0 (Turbopack)
+- Environments: .env
+✓ Running next.config.mjs took 104ms
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+
+  To migrate automatically, run:
+  npx @next/codemod@canary middleware-to-proxy .
+
+  Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+✓ Compiled successfully in 16.5s
+  Running TypeScript ...
+  Finished TypeScript in 27.4s ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/37) ...
+  Generating static pages using 3 workers (9/37) 
+  Generating static pages using 3 workers (18/37) 
+  Generating static pages using 3 workers (27/37) 
+✓ Generating static pages using 3 workers (37/37) in 1245ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ○ /_not-found
+├ ○ /admin-login
+├ ○ /admin/assessments
+├ ○ /admin/dashboard
+├ ○ /admin/questions
+├ ○ /admin/students
+├ ƒ /admin/students/[id]
+├ ƒ /api/admin/create-admin
+├ ƒ /api/admin/create-student
+├ ƒ /api/admin/dashboard-stats
+├ ƒ /api/admin/evaluation
+├ ƒ /api/admin/feedback
+├ ƒ /api/admin/questions
+├ ƒ /api/admin/questions/reorder
+├ ƒ /api/admin/student-detail
+├ ƒ /api/admin/students
+├ ƒ /api/admin/students/[id]
+├ ƒ /api/assessment/reattempt
+├ ƒ /api/assessment/response
+├ ƒ /api/assessment/start
+├ ƒ /api/assessment/status
+├ ƒ /api/assessment/submissions
+├ ƒ /api/assessment/submit
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/me
+├ ƒ /api/cloudinary/signature
+├ ƒ /api/cloudinary/stream-url
+├ ƒ /api/debug/response
+├ ○ /assessment
+├ ƒ /dashboard
+├ ƒ /dashboard/attempts
+├ ƒ /dashboard/my-assessments
+├ ƒ /dashboard/profile
+├ ƒ /dashboard/results
+├ ƒ /dashboard/support
+└ ○ /login
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

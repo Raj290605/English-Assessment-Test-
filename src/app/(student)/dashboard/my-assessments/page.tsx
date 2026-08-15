@@ -50,9 +50,15 @@ export default async function MyAssessmentsPage(props: any) {
     });
 
     if (selectedAssessment) {
-      questions = await prisma.question.findMany({
+      const aqs = await prisma.assessmentQuestion.findMany({
+        where: { assessmentId: selectedAssessment.id },
         orderBy: { questionNumber: 'asc' },
+        include: { question: true }
       });
+      questions = aqs.map(aq => ({
+        ...aq.question,
+        questionNumber: aq.questionNumber
+      }));
     }
   }
 

@@ -85,9 +85,19 @@ export async function getAdminStudentAssessmentDetail(studentId: string, assessm
     orderBy: { attemptNumber: 'desc' },
   });
 
-  const questions = await prisma.question.findMany({
-    orderBy: { questionNumber: 'asc' },
-  });
+  let questions: any[] = [];
+  if (assessment) {
+    const assessmentQuestions = await prisma.assessmentQuestion.findMany({
+      where: { assessmentId: assessment.id },
+      orderBy: { questionNumber: 'asc' },
+      include: { question: true }
+    });
+
+    questions = assessmentQuestions.map(aq => ({
+      ...aq.question,
+      questionNumber: aq.questionNumber // use the frozen order
+    }));
+  }
 
   return {
     student,

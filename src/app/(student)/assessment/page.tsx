@@ -61,7 +61,7 @@ export default function AssessmentWizardPage() {
       setResponsesMap(resMap);
 
       const answeredCount = ass.responses ? ass.responses.length : 0;
-      if (answeredCount > 0 && answeredCount < (statusData.questions?.length || 20)) {
+      if (answeredCount > 0 && answeredCount < (statusData.questions?.length || 1)) {
         setCurrentIndex(answeredCount);
       }
     } catch (err: any) {

@@ -127,9 +127,9 @@ export function EvaluationSummary({ evaluation, responses, questions = [] }: Eva
                       </div>
                       <div>
                         <h5 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Question</h5>
-                        <p className="text-[14px] text-slate-800 font-medium leading-relaxed">
-                          {question ? question.promptText || question.text || 'Question text not available' : 'Question text not available'}
-                        </p>
+                        <h3 className="text-[14px] font-bold text-slate-800 leading-snug">
+                          {r.promptSnapshot || (question ? question.promptText || question.text || 'Question text not available' : 'Question text not available')}
+                        </h3>
                       </div>
                     </div>
                     {r.feedback?.score != null && (

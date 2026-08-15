@@ -1,0 +1,12 @@
+Executing additive SQL changes manually...
+DB URL: Loaded
+Added promptSnapshot to question_responses
+Added isActive to questions
+
+--- VERIFICATION ---
+QuestionResponse Total Rows: 9
+Question Total Rows: 20
+Questions with isActive=true: 20
+Verified promptSnapshot column exists. Value: null
+
+SUCCESS!

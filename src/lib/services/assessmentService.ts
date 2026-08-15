@@ -1,6 +1,28 @@
 import { prisma } from '../prisma';
 import { AssessmentStatus, QuestionResponseStatus } from '@prisma/client';
 
+export async function freezeQuestionsForAssessment(assessmentId: string) {
+  // Fetch currently active questions
+  const activeQuestions = await prisma.question.findMany({
+    where: { isActive: true },
+    orderBy: { questionNumber: 'asc' },
+  });
+
+  if (activeQuestions.length === 0) return;
+
+  const data = activeQuestions.map((q, index) => ({
+    assessmentId,
+    questionId: q.id,
+    questionNumber: index + 1 // Guarantee continuous 1 to N sequence for the specific assessment
+  }));
+
+  // Create frozen snapshots
+  await prisma.assessmentQuestion.createMany({
+    data,
+    skipDuplicates: true
+  });
+}
+
 export async function getOrCreateAssessment(studentId: string) {
   let assessment = await prisma.assessment.findFirst({
     where: { studentId },
@@ -28,6 +50,7 @@ export async function getOrCreateAssessment(studentId: string) {
           },
         },
       });
+      await freezeQuestionsForAssessment(assessment.id);
     } catch (error: any) {
       if (error.code === 'P2002') {
         assessment = await prisma.assessment.findFirst({
@@ -68,6 +91,9 @@ export async function createReattemptAssessment(studentId: string) {
       status: AssessmentStatus.NOT_STARTED,
     },
   });
+  
+  await freezeQuestionsForAssessment(newAttempt.id);
+  
   return newAttempt;
 }
 
@@ -92,9 +118,26 @@ export async function startAssessment(assessmentId: string, studentId: string) {
 }
 
 export async function getAllQuestions() {
+  // Global active questions used ONLY by new assessments or Admin APIs
   return prisma.question.findMany({
+    where: { isActive: true },
     orderBy: { questionNumber: 'asc' },
   });
+}
+
+export async function getAssessmentQuestions(assessmentId: string) {
+  // Fetch frozen question mapping for this specific assessment
+  const aqs = await prisma.assessmentQuestion.findMany({
+    where: { assessmentId },
+    orderBy: { questionNumber: 'asc' },
+    include: { question: true }
+  });
+  
+  // Transform back into the expected Question shape for the frontend
+  return aqs.map(aq => ({
+    ...aq.question,
+    questionNumber: aq.questionNumber // Use the frozen sequence number
+  }));
 }
 
 export async function saveQuestionResponse(data: {
@@ -124,6 +167,11 @@ export async function saveQuestionResponse(data: {
     });
   }
 
+  // Fetch the current question text to snapshot it
+  const question = await prisma.question.findUnique({
+    where: { id: data.questionId }
+  });
+
   // Upsert response
   const response = await prisma.questionResponse.upsert({
     where: {
@@ -137,6 +185,7 @@ export async function saveQuestionResponse(data: {
       cloudinaryUrl: data.cloudinaryUrl,
       durationSeconds: data.durationSeconds,
       status: QuestionResponseStatus.UPLOADED,
+      promptSnapshot: question?.promptText,
       submissionTimestamp: new Date(),
     },
     create: {
@@ -147,6 +196,7 @@ export async function saveQuestionResponse(data: {
       cloudinaryUrl: data.cloudinaryUrl,
       durationSeconds: data.durationSeconds,
       status: QuestionResponseStatus.UPLOADED,
+      promptSnapshot: question?.promptText,
     },
   });
 
@@ -156,15 +206,17 @@ export async function saveQuestionResponse(data: {
 export async function submitAssessment(assessmentId: string, studentId: string) {
   const assessment = await prisma.assessment.findFirst({
     where: { id: assessmentId, studentId },
-    include: { responses: true },
+    include: { responses: true, questions: true },
   });
 
   if (!assessment) throw new Error('Assessment not found');
 
-  // Verify all 20 responses are uploaded
+  // Verify all frozen questions are uploaded
+  const requiredQuestionsCount = assessment.questions.length;
   const responseCount = assessment.responses.length;
-  if (responseCount < 20) {
-    throw new Error(`Cannot submit assessment: Only ${responseCount} of 20 questions have been answered.`);
+  
+  if (responseCount < requiredQuestionsCount) {
+    throw new Error(`Cannot submit assessment: Only ${responseCount} of ${requiredQuestionsCount} questions have been answered.`);
   }
 
   return prisma.assessment.update({
@@ -190,13 +242,7 @@ export async function getStudentAssessmentDetails(studentId: string, assessmentI
     orderBy: { attemptNumber: 'desc' },
   });
 
-  const questionsPromise = getAllQuestions();
-
-  let [assessments, questions] = await Promise.all([
-    historyPromise,
-    questionsPromise,
-  ]);
-
+  let assessments = await historyPromise;
   let targetAssessment = null;
 
   if (assessmentId) {
@@ -227,6 +273,8 @@ export async function getStudentAssessmentDetails(studentId: string, assessmentI
             student: { select: { id: true, studentId: true, name: true } },
           },
         });
+        
+        await freezeQuestionsForAssessment(targetAssessment.id);
         
         assessments = [{
           id: targetAssessment.id,
@@ -264,6 +312,9 @@ export async function getStudentAssessmentDetails(studentId: string, assessmentI
       });
     }
   }
+  
+  // Ensure we fetch the frozen questions for this specific assessment
+  const questions = await getAssessmentQuestions(targetAssessment!.id);
 
   return {
     assessment: targetAssessment,

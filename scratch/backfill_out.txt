@@ -1,0 +1,20 @@
+Starting backfill process...
+Found 20 active questions.
+Found 4 assessments.
+
+Processing assessment 77d61b36-1a57-4336-a5f2-a44e659c71c2 (Status: NOT_STARTED)
+ -> NOT_STARTED: Generated 20 fallback rows.
+
+Processing assessment c0b7c315-8da9-4ed7-ae53-e66707bf9c98 (Status: EVALUATED)
+ -> EVALUATED: Generated 8 reconstructed rows.
+
+Processing assessment bfc04620-ea08-4b3d-9b8d-27521788b006 (Status: IN_PROGRESS)
+ -> IN_PROGRESS: Generated 1 reconstructed rows and 19 fallback rows.
+
+Processing assessment 45f14882-d757-4674-9c6f-95611700e0c8 (Status: NOT_STARTED)
+ -> NOT_STARTED: Generated 20 fallback rows.
+
+Total rows prepared for insertion: 68
+Current DB count (inside tx): 80
+Transaction committed successfully.
+Final AssessmentQuestion row count: 80

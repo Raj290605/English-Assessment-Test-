@@ -1,0 +1,3 @@
+Total assessments: 4
+Statuses: { NOT_STARTED: 2, EVALUATED: 1, IN_PROGRESS: 1 }
+In progress / Not started: 3

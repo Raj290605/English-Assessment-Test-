@@ -236,7 +236,7 @@ export default function StudentReviewPage() {
           </div>
         )}
 
-        {/* 20 Question Navigator Bar */}
+        {/* Question Navigator Bar */}
         <div className="glass-panel p-4 overflow-x-auto">
           <div className="flex items-center gap-1.5 min-w-max">
             {questions.map((q, idx) => {
@@ -277,7 +277,7 @@ export default function StudentReviewPage() {
                   <span className="font-mono text-emerald-600 font-semibold">{currentQuestion.category || 'General'}</span>
                 </div>
                 <p className="text-base font-semibold text-slate-900 leading-relaxed">
-                  "{currentQuestion.promptText}"
+                  "{currentResponse?.promptSnapshot || currentQuestion.promptText}"
                 </p>
               </div>
 
@@ -477,7 +477,7 @@ export default function StudentReviewPage() {
                   rows={4}
                   value={overallStrengths}
                   onChange={(e) => setOverallStrengths(e.target.value)}
-                  placeholder="Key strengths observed throughout the 20 questions..."
+                  placeholder="Key strengths observed throughout the assessment..."
                   className="w-full p-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:border-emerald-500 transition-colors"
                 />
               </div>

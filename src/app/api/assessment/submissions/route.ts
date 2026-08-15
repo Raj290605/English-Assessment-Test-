@@ -29,11 +29,17 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
       }
 
-      // Also get questions for the question text
-      const questions = await prisma.question.findMany({
+      // Get frozen questions for this assessment
+      const aqs = await prisma.assessmentQuestion.findMany({
+        where: { assessmentId: assessment.id },
         orderBy: { questionNumber: 'asc' },
+        include: { question: true },
       });
-
+      
+      const questions = aqs.map(aq => ({
+        ...aq.question,
+        questionNumber: aq.questionNumber
+      }));
       return NextResponse.json({ assessment, questions });
     }
 

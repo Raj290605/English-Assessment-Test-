@@ -3,7 +3,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'English Assessment Platform',
-  description: 'Modern 20-Question English Speaking Assessment Platform',
+  description: 'Modern English Speaking Assessment Platform',
 };
 
 export default function RootLayout({

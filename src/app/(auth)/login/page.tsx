@@ -191,7 +191,7 @@ export default function StudentLoginPage() {
 
                 <div>
                   <p className="text-sm font-semibold">
-                    20-question speaking assessment
+                    English speaking assessment
                   </p>
 
                   <p className="text-xs text-slate-500">

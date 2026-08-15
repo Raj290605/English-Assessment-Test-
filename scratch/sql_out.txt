@@ -1,0 +1,7 @@
+Connecting and executing SQL sequentially...
+Table created.
+Index 1 created.
+Index 2 created.
+FK 1 created.
+FK 2 created.
+SQL execution complete.
