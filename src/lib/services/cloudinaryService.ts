@@ -55,13 +55,17 @@ export function generateUploadSignature(
   };
 }
 
-export function generateSignedPlaybackUrl(publicId: string, durationSec: number = 3600): string {
+export function generateSignedPlaybackUrl(publicId: string | null | undefined, durationSec: number = 3600): string | null {
+  if (!publicId) return null;
   const expiresAt = Math.floor(Date.now() / 1000) + durationSec;
 
   // Generate a signed authenticated URL suitable for HTML5 <video> playback.
   // We use cloudinary.url with sign_url: true instead of private_download_url
   // to prevent browsers from forcing an attachment download.
-  const url = cloudinary.url(publicId, {
+  // Using .mp4 allows Cloudinary to transcode WebM on the fly, ensuring iOS compatibility.
+  const publicIdWithExt = publicId.includes('.') ? publicId : `${publicId}.mp4`;
+  
+  const url = cloudinary.url(publicIdWithExt, {
     resource_type: 'video',
     type: 'authenticated',
     sign_url: true,

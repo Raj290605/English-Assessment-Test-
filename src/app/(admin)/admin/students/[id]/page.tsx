@@ -293,6 +293,7 @@ export default function StudentReviewPage() {
                     </span>
                   </div>
                   <AuthenticatedVideoPlayer
+                    key={currentResponse.id}
                     responseId={currentResponse.id}
                     publicId={currentResponse.cloudinaryPublicId}
                     fallbackUrl={currentResponse.cloudinaryUrl}

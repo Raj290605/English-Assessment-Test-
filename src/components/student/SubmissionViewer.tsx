@@ -92,6 +92,7 @@ export function SubmissionViewer({ assessment, questions, allAssessments }: Subm
           {currentResponse?.cloudinaryPublicId ? (
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
               <StudentVideoPlayer
+                key={currentResponse.id}
                 responseId={currentResponse.id}
                 publicId={currentResponse.cloudinaryPublicId}
                 fallbackUrl={currentResponse.cloudinaryUrl}

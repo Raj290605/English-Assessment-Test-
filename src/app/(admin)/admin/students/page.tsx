@@ -328,14 +328,7 @@ export default function AdminStudentsPage() {
                                           </td>
                                           <td className="px-4 py-3 text-right">
                                             <div className="flex items-center justify-end gap-2">
-                                              {attempt.status === 'SUBMITTED' ? (
-                                                <Link
-                                                  href={`/admin/students/${student.id}?assessmentId=${attempt.assessmentId}`}
-                                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#1E3A8A] text-white hover:bg-blue-800 rounded-lg text-[11px] font-bold transition-all shadow-sm"
-                                                >
-                                                  Review &rarr;
-                                                </Link>
-                                              ) : attempt.status === 'EVALUATED' || attempt.evaluation ? (
+                                              {attempt.status === 'EVALUATED' || attempt.evaluation ? (
                                                 <Link
                                                   href={`/admin/students/${student.id}?assessmentId=${attempt.assessmentId}`}
                                                   className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50 rounded-lg text-[11px] font-bold transition-all shadow-sm"
@@ -343,7 +336,12 @@ export default function AdminStudentsPage() {
                                                   View Evaluation &rarr;
                                                 </Link>
                                               ) : (
-                                                <span className="text-[11px] text-slate-400 italic">Not ready</span>
+                                                <Link
+                                                  href={`/admin/students/${student.id}?assessmentId=${attempt.assessmentId}`}
+                                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#1E3A8A] text-white hover:bg-blue-800 rounded-lg text-[11px] font-bold transition-all shadow-sm"
+                                                >
+                                                  Review &rarr;
+                                                </Link>
                                               )}
                                               {/* Delete button — hidden for IN_PROGRESS */}
                                               {attempt.status !== 'IN_PROGRESS' && attempt.assessmentId && (
