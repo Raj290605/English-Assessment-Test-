@@ -29,13 +29,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
     }
 
-    // 3. Block deletion of IN_PROGRESS assessments
-    if (assessment.status === AssessmentStatus.IN_PROGRESS) {
-      return NextResponse.json(
-        { error: 'Cannot delete an assessment that is currently IN_PROGRESS. The student may be actively taking it.' },
-        { status: 409 }
-      );
-    }
+    // Removed block on IN_PROGRESS assessments as per new requirements.
 
     const { studentId, attemptNumber } = assessment;
 

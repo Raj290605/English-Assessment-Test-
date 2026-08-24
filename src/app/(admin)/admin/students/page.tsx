@@ -44,6 +44,9 @@ export default function AdminStudentsPage() {
   const [isDeletingAttempt, setIsDeletingAttempt] = useState(false);
   const [deleteSuccess, setDeleteSuccess] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  // Delete student state
+  const [studentToDelete, setStudentToDelete] = useState<GroupedStudent | null>(null);
+  const [isDeletingStudent, setIsDeletingStudent] = useState(false);
 
   const loadData = useCallback(async () => {
     try {
@@ -147,6 +150,30 @@ export default function AdminStudentsPage() {
       await loadData();
     } finally {
       setIsDeletingAttempt(false);
+    }
+  };
+
+  const handleDeleteStudent = async () => {
+    if (!studentToDelete) return;
+    setIsDeletingStudent(true);
+    setDeleteError(null);
+    setDeleteSuccess(null);
+
+    try {
+      const res = await fetch(`/api/admin/students/${studentToDelete.id}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to delete student');
+
+      setDeleteSuccess(`Student ${studentToDelete.name} deleted successfully.`);
+      setStudentToDelete(null);
+      await loadData();
+    } catch (err: any) {
+      setDeleteError(err.message);
+      await loadData();
+    } finally {
+      setIsDeletingStudent(false);
     }
   };
 
@@ -286,10 +313,27 @@ export default function AdminStudentsPage() {
                         <td className="px-5 py-3.5 text-[13px] font-mono font-bold text-slate-700">
                           {student.latestScore !== null ? `${student.latestScore} / 10` : '—'}
                         </td>
-                        <td className="px-5 py-3.5 text-[12px] text-slate-500 text-right">
-                          {student.latestActivityDate 
-                            ? new Date(student.latestActivityDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) 
-                            : '—'}
+                        <td className="px-5 py-3.5 text-right">
+                          <div className="flex items-center justify-end gap-3">
+                            <span className="text-[12px] text-slate-500">
+                              {student.latestActivityDate 
+                                ? new Date(student.latestActivityDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) 
+                                : '—'}
+                            </span>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setDeleteError(null);
+                                setDeleteSuccess(null);
+                                setStudentToDelete(student);
+                              }}
+                              className="p-1.5 rounded-lg text-slate-300 hover:text-rose-600 hover:bg-rose-50 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+                              title="Delete Student"
+                              aria-label={`Delete Student ${student.name}`}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
 
@@ -343,8 +387,8 @@ export default function AdminStudentsPage() {
                                                   Review &rarr;
                                                 </Link>
                                               )}
-                                              {/* Delete button — hidden for IN_PROGRESS */}
-                                              {attempt.status !== 'IN_PROGRESS' && attempt.assessmentId && (
+                                              {/* Delete button */}
+                                              {attempt.assessmentId && (
                                                 <button
                                                   onClick={(e) => { e.stopPropagation(); setDeleteError(null); setDeleteSuccess(null); setAssessmentToDelete(attempt); }}
                                                   title={`Delete Attempt #${attempt.attemptNumber}`}
@@ -403,6 +447,84 @@ export default function AdminStudentsPage() {
         onClose={() => setIsCreateModalOpen(false)}
         onSuccess={loadData}
       />
+
+      {/* ── Delete Student Confirmation Modal ─────────────────────────────── */}
+      {studentToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" aria-modal="true" role="dialog">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            onClick={() => { if (!isDeletingStudent) { setStudentToDelete(null); setDeleteError(null); } }}
+          />
+          {/* Dialog */}
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-5">
+            {/* Header */}
+            <div className="flex items-start gap-3">
+              <div className="shrink-0 w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center">
+                <AlertTriangle className="w-5 h-5 text-rose-600" />
+              </div>
+              <div>
+                <h2 className="text-[16px] font-bold text-slate-900">
+                  Delete Student?
+                </h2>
+                <p className="text-[12px] text-slate-500 mt-0.5">This action cannot be undone.</p>
+              </div>
+            </div>
+
+            {/* Student details */}
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-1.5 text-[12px]">
+              <div className="flex justify-between">
+                <span className="text-slate-500 font-medium">Student</span>
+                <span className="font-semibold text-slate-800">{studentToDelete.name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500 font-medium">Student ID</span>
+                <span className="font-semibold text-slate-800">{studentToDelete.studentId}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500 font-medium">Total Attempts</span>
+                <span className="font-semibold text-slate-800">{studentToDelete.attemptsCount}</span>
+              </div>
+            </div>
+
+            {/* Warning text */}
+            <p className="text-[12px] text-slate-600 leading-relaxed">
+              You are about to permanently delete <strong>{studentToDelete.name}</strong>.
+              This will remove their account and all associated assessment data, responses, and evaluation records.
+            </p>
+
+            {/* Error message */}
+            {deleteError && (
+              <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-[12px] flex items-start gap-2">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                <span>{deleteError}</span>
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-3 pt-1">
+              <button
+                onClick={() => { setStudentToDelete(null); setDeleteError(null); }}
+                disabled={isDeletingStudent}
+                className="px-4 py-2 rounded-xl text-[13px] font-semibold text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteStudent}
+                disabled={isDeletingStudent}
+                className="px-4 py-2 rounded-xl text-[13px] font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-sm shadow-rose-600/20 transition-all disabled:opacity-50 flex items-center gap-2"
+              >
+                {isDeletingStudent ? (
+                  <><div className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />Deleting…</>
+                ) : (
+                  <><Trash2 className="w-3.5 h-3.5" />Delete Student</>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Delete Attempt Confirmation Modal ─────────────────────────────── */}
       {assessmentToDelete && (
