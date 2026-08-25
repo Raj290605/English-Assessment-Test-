@@ -8,8 +8,9 @@ interface QuestionFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: any) => Promise<void>;
-  initialData: Question;
+  initialData?: Question | null;
   isSaving: boolean;
+  mode?: 'add' | 'edit';
 }
 
 export default function QuestionFormModal({
@@ -17,17 +18,23 @@ export default function QuestionFormModal({
   onClose,
   onSave,
   initialData,
-  isSaving
+  isSaving,
+  mode = 'edit'
 }: QuestionFormModalProps) {
   const [promptText, setPromptText] = useState('');
 
   useEffect(() => {
-    if (initialData) {
-      setPromptText(initialData.promptText);
+    if (isOpen) {
+      if (mode === 'edit' && initialData) {
+        setPromptText(initialData.promptText);
+      } else if (mode === 'add') {
+        setPromptText('');
+      }
     }
-  }, [initialData, isOpen]);
+  }, [initialData, isOpen, mode]);
 
-  if (!isOpen || !initialData) return null;
+  if (!isOpen) return null;
+  if (mode === 'edit' && !initialData) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +48,8 @@ export default function QuestionFormModal({
     });
   };
 
+  const isUnchanged = Boolean(mode === 'edit' && initialData && promptText.trim() === initialData.promptText);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div 
@@ -49,7 +58,7 @@ export default function QuestionFormModal({
       >
         <div className="flex items-center justify-between p-6 border-b border-white/10">
           <h2 className="text-xl font-bold text-white">
-            Edit Question {initialData.questionNumber}
+            {mode === 'edit' ? `Edit Question ${initialData?.questionNumber}` : 'Add New Question'}
           </h2>
           <button 
             onClick={onClose}
@@ -98,7 +107,7 @@ export default function QuestionFormModal({
             </button>
             <button
               type="submit"
-              disabled={isSaving || !promptText.trim() || promptText.trim() === initialData.promptText}
+              disabled={isSaving || !promptText.trim() || isUnchanged}
               className="px-5 py-2.5 rounded-xl font-medium text-white bg-[#1E3A8A] hover:bg-[#2546a8] shadow-lg shadow-blue-900/20 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSaving ? (
@@ -106,7 +115,7 @@ export default function QuestionFormModal({
               ) : (
                 <Save className="w-5 h-5" />
               )}
-              Save Changes
+              {mode === 'edit' ? 'Save Changes' : 'Add Question'}
             </button>
           </div>
         </form>

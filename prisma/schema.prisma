@@ -16,14 +16,16 @@ model User {
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
   assessments  Assessment[]
-  evaluations  OverallEvaluation[] @relation("AdminEvaluations")
+  evaluations   OverallEvaluation[] @relation("AdminEvaluations")
+  questionSetId String?
+  questionSet   QuestionSet?        @relation(fields: [questionSetId], references: [id], onDelete: Restrict)
 
   @@map("users")
 }
 
 model Question {
   id             String               @id @default(uuid())
-  questionNumber Int                  @unique
+  questionNumber Int
   promptText     String
   category       String?
   timeLimitSec   Int                  @default(120)
@@ -31,7 +33,10 @@ model Question {
   createdAt      DateTime             @default(now())
   responses      QuestionResponse[]
   assessments    AssessmentQuestion[]
+  questionSetId  String?
+  questionSet    QuestionSet?         @relation(fields: [questionSetId], references: [id], onDelete: Restrict)
 
+  @@unique([questionSetId, questionNumber])
   @@map("questions")
 }
 
@@ -119,6 +124,19 @@ model OverallEvaluation {
   assessment          Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
 
   @@map("overall_evaluations")
+}
+
+model QuestionSet {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  questions   Question[]
+  students    User[]
+
+  @@map("question_sets")
 }
 
 enum Role {

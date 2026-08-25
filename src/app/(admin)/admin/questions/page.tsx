@@ -1,72 +1,40 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Question } from '@prisma/client';
-import QuestionList from '@/components/admin/QuestionList';
-import QuestionFormModal from '@/components/admin/QuestionFormModal';
+import Link from 'next/link';
+import { BookOpen, ArrowRight } from 'lucide-react';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 
-export default function AdminQuestionsPage() {
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+interface QuestionSet {
+  id: string;
+  name: string;
+}
 
-  // Modal State
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
+export default function QuestionBankLandingPage() {
+  const [questionSets, setQuestionSets] = useState<QuestionSet[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Sidebar state
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
-    fetchQuestions();
+    fetchQuestionSets();
   }, []);
 
-  const fetchQuestions = async () => {
+  const fetchQuestionSets = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/admin/questions');
-      if (!res.ok) throw new Error('Failed to fetch questions');
+      const res = await fetch('/api/admin/question-sets');
+      if (!res.ok) throw new Error('Failed to fetch question sets');
       const data = await res.json();
-      setQuestions(data);
+      if (data.questionSets) {
+        setQuestionSets(data.questionSets);
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleEditQuestion = (q: Question) => {
-    setEditingQuestion(q);
-    setIsModalOpen(true);
-  };
-
-  const handleSaveQuestion = async (data: any) => {
-    if (isSaving || !editingQuestion) return;
-    setIsSaving(true);
-    setError(null);
-    try {
-      const body = { promptText: data.promptText, id: editingQuestion.id };
-
-      const res = await fetch('/api/admin/questions', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || 'Failed to save question');
-      }
-
-      await fetchQuestions();
-      setIsModalOpen(false);
-    } catch (err: any) {
-      setError(err.message);
-      alert(err.message); 
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -95,7 +63,7 @@ export default function AdminQuestionsPage() {
         <main className="flex-1 p-6 lg:py-10 lg:px-10 xl:px-12 space-y-6 w-full max-w-[90%] 2xl:max-w-7xl">
           <div className="flex flex-col gap-2">
             <h1 className="text-3xl font-bold text-white">Question Bank</h1>
-            <p className="text-slate-400">View and edit questions for the English Speaking Assessment.</p>
+            <p className="text-slate-400">Select a question set to manage and edit its questions.</p>
           </div>
 
           {error && (
@@ -109,24 +77,33 @@ export default function AdminQuestionsPage() {
               <div className="w-8 h-8 border-4 border-[#1E3A8A]/30 border-t-[#1E3A8A] rounded-full animate-spin" />
             </div>
           ) : (
-            <QuestionList
-              questions={questions}
-              onEdit={handleEditQuestion}
-              isSaving={isSaving}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+              {questionSets.map((set) => (
+                <Link
+                  key={set.id}
+                  href={`/admin/questions/${set.id}`}
+                  className="bg-[#151b2b] hover:bg-white/[0.04] border border-white/10 hover:border-[#1E3A8A]/50 transition-all rounded-2xl p-6 group flex flex-col justify-between min-h-[160px]"
+                >
+                  <div>
+                    <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-4">
+                      <BookOpen className="w-6 h-6 text-blue-400" />
+                    </div>
+                    <h2 className="text-xl font-bold text-white mb-2">{set.name}</h2>
+                    <p className="text-sm text-slate-400">
+                      Manage and edit questions belonging to {set.name}.
+                    </p>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 text-blue-400 mt-6 text-sm font-semibold group-hover:text-blue-300 transition-colors">
+                    View Questions
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Link>
+              ))}
+            </div>
           )}
         </main>
       </div>
-
-      {isModalOpen && editingQuestion && (
-        <QuestionFormModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSave={handleSaveQuestion}
-          initialData={editingQuestion}
-          isSaving={isSaving}
-        />
-      )}
     </div>
   );
 }

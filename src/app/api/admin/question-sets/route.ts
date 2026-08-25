@@ -1,22 +1,22 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/services/authService';
-import { getAdminStudentList } from '@/lib/services/feedbackService';
+import { prisma } from '@/lib/prisma';
+import { Role } from '@prisma/client';
 
 export async function GET() {
   try {
     const session = await getSession();
-    if (!session || session.role !== 'ADMIN') {
+    if (!session || session.role !== Role.ADMIN) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const students = await getAdminStudentList();
-    const { prisma } = await import('@/lib/prisma');
     const questionSets = await prisma.questionSet.findMany({
       where: { isActive: true },
-      select: { id: true, name: true }
+      select: { id: true, name: true },
+      orderBy: { createdAt: 'asc' },
     });
 
-    return NextResponse.json({ students, questionSets });
+    return NextResponse.json({ questionSets });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

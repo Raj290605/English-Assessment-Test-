@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { X, UserPlus, Key, User, Shield, AlertCircle, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, UserPlus, Key, User, Shield, AlertCircle, CheckCircle2, Eye, EyeOff, BookOpen } from 'lucide-react';
 
 interface CreateStudentModalProps {
   isOpen: boolean;
@@ -13,10 +13,28 @@ export function CreateStudentModal({ isOpen, onClose, onSuccess }: CreateStudent
   const [name, setName] = useState('');
   const [studentId, setStudentId] = useState('');
   const [password, setPassword] = useState('');
+  const [questionSetId, setQuestionSetId] = useState('');
+  const [questionSets, setQuestionSets] = useState<{ id: string, name: string }[]>([]);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetch('/api/admin/question-sets')
+        .then(res => res.json())
+        .then(data => {
+          if (data.questionSets) {
+            setQuestionSets(data.questionSets);
+            if (data.questionSets.length > 0) {
+              setQuestionSetId(data.questionSets[0].id); // default to first
+            }
+          }
+        })
+        .catch(console.error);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -24,6 +42,7 @@ export function CreateStudentModal({ isOpen, onClose, onSuccess }: CreateStudent
     setName('');
     setStudentId('');
     setPassword('');
+    if (questionSets.length > 0) setQuestionSetId(questionSets[0].id);
     setError(null);
     setSuccess(null);
   };
@@ -38,7 +57,7 @@ export function CreateStudentModal({ isOpen, onClose, onSuccess }: CreateStudent
     setError(null);
     setSuccess(null);
 
-    if (!name.trim() || !studentId.trim() || !password.trim()) {
+    if (!name.trim() || !studentId.trim() || !password.trim() || !questionSetId) {
       setError('Please fill in all required fields.');
       return;
     }
@@ -53,6 +72,7 @@ export function CreateStudentModal({ isOpen, onClose, onSuccess }: CreateStudent
           name: name.trim(),
           studentId: studentId.trim(),
           password: password.trim(),
+          questionSetId,
         }),
       });
 
@@ -171,6 +191,33 @@ export function CreateStudentModal({ isOpen, onClose, onSuccess }: CreateStudent
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
+            </div>
+          </div>
+
+          {/* Question Set */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-slate-700">
+              Assign Question Set <span className="text-slate-500 font-normal">(Permanent)</span>
+            </label>
+            <div className="relative">
+              <BookOpen className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <select
+                required
+                value={questionSetId}
+                onChange={(e) => setQuestionSetId(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 text-sm focus:outline-none focus:border-emerald-500 transition-colors appearance-none cursor-pointer"
+              >
+                <option value="" disabled>Select a Question Set...</option>
+                {questionSets.map(set => (
+                  <option key={set.id} value={set.id}>{set.name}</option>
+                ))}
+              </select>
+              {/* Custom arrow for select */}
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                </svg>
+              </div>
             </div>
           </div>
 

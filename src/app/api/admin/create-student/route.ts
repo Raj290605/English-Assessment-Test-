@@ -11,15 +11,16 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, studentId, password } = body;
+    const { name, studentId, password, questionSetId } = body;
 
     const cleanName = name ? name.trim() : '';
     const cleanStudentId = studentId ? studentId.trim() : '';
     const cleanPassword = password ? password.trim() : '';
+    const cleanQuestionSetId = questionSetId ? questionSetId.trim() : '';
 
-    if (!cleanName || !cleanStudentId || !cleanPassword) {
+    if (!cleanName || !cleanStudentId || !cleanPassword || !cleanQuestionSetId) {
       return NextResponse.json(
-        { error: 'Student Name, Login ID, and Password are all required.' },
+        { error: 'Student Name, Login ID, Password, and Question Set are all required.' },
         { status: 400 }
       );
     }
@@ -47,6 +48,15 @@ export async function POST(request: Request) {
       );
     }
 
+    // Verify Question Set exists
+    const questionSetExists = await prisma.questionSet.findUnique({
+      where: { id: cleanQuestionSetId }
+    });
+
+    if (!questionSetExists) {
+      return NextResponse.json({ error: 'Selected Question Set not found.' }, { status: 400 });
+    }
+
     // Hash the password using bcrypt
     const hashedPassword = await hashPassword(cleanPassword);
 
@@ -56,6 +66,7 @@ export async function POST(request: Request) {
         name: cleanName,
         studentId: cleanStudentId,
         passwordHash: hashedPassword,
+        questionSetId: cleanQuestionSetId,
         role: Role.STUDENT,
       },
       select: {

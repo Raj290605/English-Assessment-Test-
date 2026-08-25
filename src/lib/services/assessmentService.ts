@@ -2,9 +2,21 @@ import { prisma } from '../prisma';
 import { AssessmentStatus, QuestionResponseStatus } from '@prisma/client';
 
 export async function freezeQuestionsForAssessment(assessmentId: string) {
-  // Fetch currently active questions
+  const assessment = await prisma.assessment.findUnique({
+    where: { id: assessmentId },
+    include: { student: true }
+  });
+
+  if (!assessment || !assessment.student.questionSetId) {
+    throw new Error('Your assessment has not been assigned a Question Set yet. Please contact your administrator.');
+  }
+
+  // Fetch currently active questions for the student's assigned Question Set
   const activeQuestions = await prisma.question.findMany({
-    where: { isActive: true },
+    where: { 
+      isActive: true,
+      questionSetId: assessment.student.questionSetId 
+    },
     orderBy: { questionNumber: 'asc' },
   });
 
