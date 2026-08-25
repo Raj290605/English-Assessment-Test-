@@ -169,10 +169,25 @@ async function main() {
     console.log(`Student created: ${student.studentId} (${student.name})`);
   }
 
-  // 3. Create 20 Questions
+  // 3. Create Default Question Set A
+  const setA = await prisma.questionSet.upsert({
+    where: { name: 'Question Set A' },
+    update: {},
+    create: {
+      name: 'Question Set A',
+      isActive: true,
+    },
+  });
+
+  // 4. Create 20 Questions
   for (const q of QUESTIONS) {
     await prisma.question.upsert({
-      where: { questionNumber: q.questionNumber },
+      where: { 
+        questionSetId_questionNumber: {
+          questionSetId: setA.id,
+          questionNumber: q.questionNumber
+        } 
+      },
       update: {
         promptText: q.promptText,
         category: q.category,
@@ -183,6 +198,7 @@ async function main() {
         promptText: q.promptText,
         category: q.category,
         timeLimitSec: q.timeLimitSec,
+        questionSetId: setA.id
       },
     });
   }
