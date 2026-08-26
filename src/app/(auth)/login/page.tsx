@@ -363,7 +363,7 @@ export default function StudentLoginPage() {
               <div className="mt-4 text-center space-y-2">
 
                 <Link
-                  href="/"
+                  href="/portal"
                   className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-blue-600 transition-colors"
                 >
                   ← Back to portal selection
