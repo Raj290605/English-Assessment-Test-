@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSession, hashPassword } from '@/lib/services/authService';
+import { encryptPassword } from '@/lib/services/cryptoService';
 import { prisma } from '@/lib/prisma';
 import { Role } from '@prisma/client';
 
@@ -59,6 +60,7 @@ export async function POST(request: Request) {
 
     // Hash the password using bcrypt
     const hashedPassword = await hashPassword(cleanPassword);
+    const encryptedPwd = encryptPassword(cleanPassword);
 
     // Create the new student user
     const newStudent = await prisma.user.create({
@@ -66,6 +68,7 @@ export async function POST(request: Request) {
         name: cleanName,
         studentId: cleanStudentId,
         passwordHash: hashedPassword,
+        encryptedPassword: encryptedPwd,
         questionSetId: cleanQuestionSetId,
         role: Role.STUDENT,
       },

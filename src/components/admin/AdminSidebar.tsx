@@ -28,6 +28,7 @@ const mainNavItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/admin/dashboard' },
   { icon: Users, label: 'Students', href: '/admin/students' },
   { icon: ClipboardList, label: 'Assessments', href: '/admin/assessments' },
+  { icon: ShieldCheck, label: 'Account Management', href: '/admin/accounts' },
 ];
 
 export function AdminSidebar({ user, isOpen, onClose }: AdminSidebarProps) {

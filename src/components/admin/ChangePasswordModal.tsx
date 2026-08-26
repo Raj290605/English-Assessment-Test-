@@ -1,22 +1,30 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Save, ShieldCheck } from 'lucide-react';
+import { X, Save, KeyRound } from 'lucide-react';
 
-interface CreateAdminModalProps {
+interface Account {
+  id: string;
+  studentId: string;
+  name: string;
+  role: 'STUDENT' | 'ADMIN';
+}
+
+interface ChangePasswordModalProps {
   isOpen: boolean;
   onClose: () => void;
+  account: Account;
   onSuccess: () => void;
 }
 
-export default function CreateAdminModal({
+export default function ChangePasswordModal({
   isOpen,
   onClose,
+  account,
   onSuccess,
-}: CreateAdminModalProps) {
-  const [name, setName] = useState('');
-  const [adminId, setAdminId] = useState('');
-  const [password, setPassword] = useState('');
+}: ChangePasswordModalProps) {
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,26 +34,27 @@ export default function CreateAdminModal({
     e.preventDefault();
     setError(null);
 
-    if (password.length < 6) {
+    if (newPassword.length < 6) {
       setError('Password must be at least 6 characters long.');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setError('Passwords do not match.');
       return;
     }
 
     setIsSaving(true);
     try {
       const res = await fetch('/api/admin/accounts', {
-        method: 'POST',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: name.trim(),
-          studentId: adminId.trim(), // The DB field is studentId, but conceptually it's an admin ID here
-          password,
-        }),
+        body: JSON.stringify({ id: account.id, newPassword }),
       });
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Failed to create admin');
+        throw new Error(data.error || 'Failed to update password');
       }
 
       onSuccess();
@@ -64,8 +73,8 @@ export default function CreateAdminModal({
       >
         <div className="flex items-center justify-between p-6 border-b border-white/10">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-blue-400" />
-            Add New Admin
+            <KeyRound className="w-5 h-5 text-blue-400" />
+            Change Password
           </h2>
           <button 
             onClick={onClose}
@@ -76,54 +85,47 @@ export default function CreateAdminModal({
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col flex-1">
-          <div className="p-6 space-y-4">
-            
+          <div className="p-6 space-y-6">
+            <div className="bg-white/5 rounded-xl p-4">
+              <p className="text-sm text-slate-400 mb-1">Account</p>
+              <p className="text-base font-semibold text-white">{account.name}</p>
+              <p className="text-xs text-slate-500 mt-1 font-mono">{account.studentId} • {account.role}</p>
+            </div>
+
             {error && (
               <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-3 rounded-lg text-sm">
                 {error}
               </div>
             )}
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Full Name <span className="text-rose-400">*</span>
-              </label>
-              <input
-                type="text"
-                required
-                value={name}
-                onChange={e => setName(e.target.value)}
-                className="w-full bg-[#151b2b] border border-white/10 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent transition-all"
-                placeholder="e.g. John Doe"
-              />
-            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  New Password <span className="text-rose-400">*</span>
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  className="w-full bg-[#151b2b] border border-white/10 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent transition-all"
+                  placeholder="Enter new password"
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Admin ID / Username <span className="text-rose-400">*</span>
-              </label>
-              <input
-                type="text"
-                required
-                value={adminId}
-                onChange={e => setAdminId(e.target.value)}
-                className="w-full bg-[#151b2b] border border-white/10 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent transition-all"
-                placeholder="e.g. ADMIN001"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Initial Password <span className="text-rose-400">*</span>
-              </label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="w-full bg-[#151b2b] border border-white/10 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent transition-all"
-                placeholder="Enter password"
-              />
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Confirm Password <span className="text-rose-400">*</span>
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  className="w-full bg-[#151b2b] border border-white/10 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent transition-all"
+                  placeholder="Confirm new password"
+                />
+              </div>
             </div>
           </div>
 
@@ -138,7 +140,7 @@ export default function CreateAdminModal({
             </button>
             <button
               type="submit"
-              disabled={isSaving || !name || !adminId || !password}
+              disabled={isSaving || !newPassword || !confirmPassword}
               className="px-5 py-2.5 rounded-xl font-medium text-white bg-[#1E3A8A] hover:bg-[#2546a8] shadow-lg shadow-blue-900/20 transition-all flex items-center gap-2 disabled:opacity-50"
             >
               {isSaving ? (
@@ -146,7 +148,7 @@ export default function CreateAdminModal({
               ) : (
                 <Save className="w-5 h-5" />
               )}
-              Create Admin
+              Save Password
             </button>
           </div>
         </form>

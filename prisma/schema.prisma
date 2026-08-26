@@ -10,9 +10,10 @@ datasource db {
 model User {
   id           String              @id @default(uuid())
   studentId    String              @unique
-  name         String
-  passwordHash String
-  role         Role                @default(STUDENT)
+  name              String
+  passwordHash      String
+  encryptedPassword String?
+  role              Role                @default(STUDENT)
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
   assessments  Assessment[]
@@ -156,3 +157,11 @@ enum QuestionResponseStatus {
   UPLOADED
   SAVED
 }
+
+// Added to prevent Prisma from dropping Neon DB's default table
+model playing_with_neon {
+  id    Int    @id @default(autoincrement())
+  name  String
+  value Float  @db.Real
+}
+

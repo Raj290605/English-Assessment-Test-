@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { AdminDashboardShell } from '@/components/admin/AdminDashboardShell';
 import { CreateStudentModal } from '@/components/admin/CreateStudentModal';
-import { CreateAdminModal } from '@/components/admin/CreateAdminModal';
+import CreateAdminModal from '@/components/admin/CreateAdminModal';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
