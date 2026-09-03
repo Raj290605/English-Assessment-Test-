@@ -17,7 +17,7 @@ export function StudentSidebar({ user, isOpen, onClose }: StudentSidebarProps) {
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
-    router.push('/');
+    router.push('/portal');
     router.refresh();
   };
 

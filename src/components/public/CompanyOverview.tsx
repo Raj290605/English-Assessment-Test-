@@ -1,10 +1,32 @@
 "use client";
 
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Play } from "lucide-react";
+import { ArrowRight, Play, Pause, Volume2, VolumeX } from "lucide-react";
 import Link from "next/link";
 
 export default function CompanyOverview() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
+
+  const togglePlay = () => {
+    if (!videoRef.current) return;
+    if (videoRef.current.paused) {
+      videoRef.current.play();
+      setIsPlaying(true);
+    } else {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!videoRef.current) return;
+    videoRef.current.muted = !videoRef.current.muted;
+    setIsMuted(videoRef.current.muted);
+  };
   return (
     <section className="py-24 bg-slate-50 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -46,7 +68,7 @@ export default function CompanyOverview() {
             </div>
           </motion.div>
 
-          {/* Right Visual (Placeholder) */}
+          {/* Right Visual (Graduation Video) */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -54,31 +76,59 @@ export default function CompanyOverview() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="relative"
           >
-            <div className="aspect-[4/3] rounded-[2rem] overflow-hidden bg-slate-200 relative group shadow-2xl">
-              {/* Placeholder Content */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-200">
-                <svg className="w-16 h-16 mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span className="text-lg font-medium tracking-widest uppercase">Graduation Visual</span>
-              </div>
+            <div className="aspect-[4/3] rounded-[2rem] overflow-hidden bg-slate-900 relative group shadow-2xl">
+              {/* Video Element */}
+              <video
+                ref={videoRef}
+                className="w-full h-full object-cover cursor-pointer"
+                playsInline
+                autoPlay
+                loop
+                muted={isMuted}
+                onClick={togglePlay}
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
+              >
+                <source src="/Graduation%20Visual.mp4" type="video/mp4" />
+                <source src="/Graduation Visual.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
 
-              {/* Play Button Overlay */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <button className="w-20 h-20 rounded-full bg-white/30 backdrop-blur-md flex items-center justify-center group-hover:scale-110 group-hover:bg-white/40 transition-all duration-300 shadow-xl border border-white/40">
-                  <Play className="w-8 h-8 text-white ml-1" fill="currentColor" />
+              {/* Gradient Overlay for visual contrast */}
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-black/20 pointer-events-none" />
+
+              {/* Sound Toggle Button */}
+              <button
+                type="button"
+                onClick={toggleMute}
+                aria-label={isMuted ? "Unmute video" : "Mute video"}
+                className="absolute top-5 right-5 z-20 w-10 h-10 rounded-full bg-slate-900/70 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-slate-900/90 transition-all duration-200"
+              >
+                {isMuted ? (
+                  <VolumeX className="w-5 h-5 text-slate-200" />
+                ) : (
+                  <Volume2 className="w-5 h-5 text-yellow-400" />
+                )}
+              </button>
+
+              {/* Play / Pause Center Overlay Button */}
+              <div
+                onClick={togglePlay}
+                className={`absolute inset-0 flex items-center justify-center cursor-pointer transition-opacity duration-300 ${
+                  isPlaying ? "opacity-0 group-hover:opacity-100" : "opacity-100"
+                }`}
+              >
+                <button
+                  type="button"
+                  aria-label={isPlaying ? "Pause video" : "Play video"}
+                  className="w-20 h-20 rounded-full bg-white/25 backdrop-blur-md flex items-center justify-center group-hover:scale-110 hover:bg-white/35 transition-all duration-300 shadow-xl border border-white/40 text-white"
+                >
+                  {isPlaying ? (
+                    <Pause className="w-8 h-8 text-white" fill="currentColor" />
+                  ) : (
+                    <Play className="w-8 h-8 text-white ml-1" fill="currentColor" />
+                  )}
                 </button>
-              </div>
-
-              {/* Stats Overlay */}
-              <div className="absolute bottom-6 left-6 bg-slate-900/80 backdrop-blur-md p-4 rounded-xl border border-white/10 flex items-center gap-4">
-                <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center">
-                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-white"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                </div>
-                <div>
-                  <p className="text-white font-bold text-lg leading-tight">15+ Years</p>
-                  <p className="text-slate-300 text-xs">of Experience in Overseas Education</p>
-                </div>
               </div>
             </div>
             

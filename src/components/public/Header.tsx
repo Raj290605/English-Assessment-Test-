@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ChevronRight, GraduationCap } from "lucide-react";
+import { Menu, X, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
@@ -37,22 +37,7 @@ export default function Header() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          {/* Logo */}
-          <div className="flex-shrink-0">
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform">
-                <GraduationCap className="w-6 h-6" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-white font-bold text-lg leading-tight tracking-tight">
-                  Skillsoft
-                </span>
-                <span className="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">
-                  Overseas Education
-                </span>
-              </div>
-            </Link>
-          </div>
+
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-8">
@@ -94,7 +79,7 @@ export default function Header() {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
+          <div className="md:hidden flex items-center ml-auto">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="text-slate-300 hover:text-white p-2"
