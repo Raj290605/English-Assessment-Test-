@@ -31,7 +31,7 @@ export default function WhoWeAre() {
             </div>
           </motion.div>
 
-          {/* Right Visual (Placeholder) */}
+          {/* Right Visual */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -39,18 +39,16 @@ export default function WhoWeAre() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="relative"
           >
-            <div className="aspect-[4/5] rounded-[2.5rem] overflow-hidden bg-slate-200 relative group shadow-2xl border border-slate-100">
-              {/* Placeholder Content */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-100 group-hover:bg-slate-200 transition-colors duration-500">
-                <svg className="w-16 h-16 mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span className="text-lg font-medium tracking-widest uppercase">Company Image</span>
-              </div>
+            <div className="aspect-[3/2] rounded-[2rem] overflow-hidden bg-slate-100 relative shadow-xl border border-slate-200/80">
+              <img
+                src="/company%20image.png"
+                alt="Skillsoft Overseas Education"
+                className="w-full h-full object-cover object-center"
+              />
             </div>
             
             {/* Decorative background blur */}
-            <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-blue-50 blur-[80px] rounded-full" />
+            <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-blue-100/60 blur-[80px] rounded-full pointer-events-none" />
           </motion.div>
 
         </div>

@@ -70,7 +70,7 @@ export default function HeroSection() {
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
-                href="#contact"
+                href="/contact"
                 className="inline-flex items-center gap-3 px-8 py-3.5 rounded-lg border border-slate-600/80 text-white font-medium hover:bg-slate-800/50 transition-colors duration-300 backdrop-blur-sm bg-transparent"
               >
                 Contact Us

@@ -34,7 +34,7 @@ export default function FinalCTA() {
 
         <div className="relative z-10 w-full md:w-auto flex-shrink-0">
           <Link
-            href="#contact"
+            href="/contact"
             className="inline-flex w-full md:w-auto justify-center items-center gap-2 px-8 py-4 rounded-xl bg-yellow-400 text-slate-900 font-bold text-lg hover:bg-yellow-300 hover:scale-105 transition-all duration-300 shadow-xl shadow-yellow-500/20"
           >
             Get Started Today

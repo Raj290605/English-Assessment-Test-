@@ -55,7 +55,7 @@ const itemVariants = {
 
 export default function ServicesPreview() {
   return (
-    <section className="py-24 bg-slate-50">
+    <section id="services" className="py-24 bg-slate-50 scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
@@ -81,7 +81,7 @@ export default function ServicesPreview() {
             transition={{ duration: 0.6 }}
           >
             <Link
-              href="#services"
+              href="/services"
               className="inline-flex items-center gap-3 text-sm font-semibold text-slate-700 hover:text-blue-600 transition-colors group"
             >
               Explore All Services
@@ -115,13 +115,9 @@ export default function ServicesPreview() {
                   {service.title}
                 </h3>
                 
-                <p className="text-slate-500 leading-relaxed mb-8">
+                <p className="text-slate-500 leading-relaxed">
                   {service.description}
                 </p>
-                
-                <div className="flex items-center text-slate-300 group-hover:text-blue-600 transition-colors">
-                  <ArrowRight className="w-5 h-5" />
-                </div>
               </motion.div>
             );
           })}

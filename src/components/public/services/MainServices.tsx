@@ -1,49 +1,57 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 const servicesList = [
   {
     id: "01",
     title: "University Selection",
     description: "Identify suitable universities based on your academic profile, preferences, destination, and long-term goals. We help you build a balanced list of ambitious, realistic, and safe options.",
-    visual: "University Selection Visual",
+    imageSrc: "/images/services/university-selection.jpg",
+    altText: "Student discussing university options with an education counsellor",
   },
   {
     id: "02",
     title: "Course Selection",
     description: "Choose appropriate courses and programs based on your interests, academic background, and future career plans. We ensure your degree path aligns with your true aspirations.",
-    visual: "Course Selection Visual",
+    imageSrc: "/images/services/course-selection.jpg",
+    altText: "Student discussing academic course options with an education counsellor",
   },
   {
     id: "03",
     title: "Application Guidance",
     description: "Navigate the complex application process with expert support. From organizing transcripts to reviewing requirements, we ensure your submissions are accurate and timely.",
-    visual: "Application Guidance Visual",
+    imageSrc: "/images/services/application-guidance.jpg",
+    altText: "Education counsellor helping a student with a university application",
   },
   {
     id: "04",
     title: "Education Loans & Financial Guidance",
     description: "Understand and navigate available education-financing options. We help you explore scholarships and structure a clear plan to fund your international education.",
-    visual: "Financial Guidance Visual",
+    imageSrc: "/images/services/education-loans.jpg",
+    altText: "Student receiving education financing guidance from a counsellor",
   },
   {
     id: "05",
     title: "Accommodation",
     description: "Find secure and comfortable housing near your chosen campus. We assist in exploring on-campus and off-campus living arrangements tailored to your budget.",
-    visual: "Accommodation Visual",
+    imageSrc: "/images/services/accommodation.jpg",
+    altText: "Student exploring overseas accommodation options with an education counsellor",
   },
   {
     id: "06",
     title: "Visa & Documentation Support",
     description: "Navigate the documentation and visa-preparation process with clarity. We guide you through the requirements to ensure a smooth transition.",
-    visual: "Visa Support Visual",
+    imageSrc: "/images/services/visa-documentation.jpg",
+    altText: "Education counsellor helping a student prepare visa documentation",
   },
   {
     id: "07",
     title: "Pre-Departure Support",
     description: "Prepare for the practical aspects of moving abroad. From travel checklists to cultural adaptation tips, we ensure you are ready before you even take off.",
-    visual: "Pre-Departure Visual",
+    imageSrc: "/images/services/pre-departure-support.jpg",
+    altText: "Student receiving final pre-departure guidance before studying abroad",
   },
 ];
 
@@ -91,15 +99,14 @@ export default function MainServices() {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="flex-1 w-full relative"
               >
-                <div className="aspect-[4/3] rounded-[2.5rem] bg-slate-200 border border-slate-100 shadow-2xl relative overflow-hidden group">
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-100 group-hover:bg-slate-200 transition-colors duration-500">
-                    <svg className="w-16 h-16 mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <span className="text-lg font-medium tracking-widest uppercase text-center px-4">
-                      {service.visual}
-                    </span>
-                  </div>
+                <div className="aspect-video rounded-[2.5rem] bg-slate-200 border border-slate-100 shadow-2xl relative overflow-hidden group">
+                  <Image
+                    src={service.imageSrc}
+                    alt={service.altText}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
                 </div>
                 
                 {/* Subtle ambient blur */}

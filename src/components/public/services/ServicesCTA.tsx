@@ -29,14 +29,14 @@ export default function ServicesCTA() {
 
         <div className="relative z-10 flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
           <Link
-            href="#contact"
+            href="/contact"
             className="inline-flex w-full sm:w-auto justify-center items-center gap-2 px-8 py-4 rounded-xl bg-yellow-500 text-slate-900 font-bold hover:bg-yellow-400 hover:scale-105 transition-all duration-300 shadow-xl shadow-yellow-500/20"
           >
             Contact Us
             <ArrowRight className="w-5 h-5" />
           </Link>
           <Link
-            href="#credibility-interview-test"
+            href="/credibility-interview-test"
             className="inline-flex w-full sm:w-auto justify-center items-center gap-2 px-8 py-4 rounded-xl border border-slate-700 bg-slate-800/50 text-white font-bold hover:bg-slate-800 hover:border-slate-600 transition-all duration-300"
           >
             Explore Credibility Interview Test

@@ -1,9 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-
-import Image from "next/image";
 
 const universities = [
   { src: "/university-logos/university-01.png.png", alt: "University 01" },
@@ -33,19 +30,7 @@ export default function UniversitiesShowcase() {
         </motion.div>
       </div>
 
-      <div className="relative max-w-[100vw] mx-auto pb-12">
-        {/* Navigation Arrows (Decorative for this design) */}
-        <div className="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-10 hidden sm:flex">
-          <button className="w-12 h-12 rounded-full bg-white shadow-lg border border-slate-100 flex items-center justify-center text-slate-400 hover:text-blue-600 hover:scale-105 transition-all">
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-        </div>
-        <div className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-10 hidden sm:flex">
-          <button className="w-12 h-12 rounded-full bg-white shadow-lg border border-slate-100 flex items-center justify-center text-slate-400 hover:text-blue-600 hover:scale-105 transition-all">
-            <ChevronRight className="w-6 h-6" />
-          </button>
-        </div>
-
+      <div className="relative max-w-[100vw] mx-auto">
         {/* Carousel Container */}
         <div className="flex overflow-hidden relative group">
           {/* Gradient Edges */}
@@ -75,14 +60,6 @@ export default function UniversitiesShowcase() {
               </div>
             ))}
           </motion.div>
-        </div>
-
-        {/* Pagination Dots (Decorative) */}
-        <div className="flex justify-center items-center gap-2 mt-12">
-          <div className="w-6 h-1.5 rounded-full bg-yellow-400" />
-          <div className="w-4 h-1.5 rounded-full bg-slate-200" />
-          <div className="w-4 h-1.5 rounded-full bg-slate-200" />
-          <div className="w-4 h-1.5 rounded-full bg-slate-200" />
         </div>
       </div>
     </section>

@@ -57,7 +57,7 @@ export default function CompanyOverview() {
             
             <div className="mt-10">
               <Link
-                href="#about"
+                href="/about"
                 className="inline-flex items-center gap-2 text-blue-600 font-semibold hover:text-blue-700 transition-colors group"
               >
                 Learn More About Us

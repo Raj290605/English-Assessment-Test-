@@ -43,10 +43,10 @@ export default function Footer() {
             <h3 className="text-white font-semibold mb-6">Quick Links</h3>
             <ul className="space-y-3">
               <li><Link href="/" className="text-slate-400 hover:text-white transition-colors text-sm">Home</Link></li>
-              <li><Link href="#" className="text-slate-400 hover:text-white transition-colors text-sm">About Us</Link></li>
-              <li><Link href="#" className="text-slate-400 hover:text-white transition-colors text-sm">Services</Link></li>
-              <li><Link href="#" className="text-slate-400 hover:text-white transition-colors text-sm">Credibility Interview Test</Link></li>
-              <li><Link href="#" className="text-slate-400 hover:text-white transition-colors text-sm">Contact</Link></li>
+              <li><Link href="/about" className="text-slate-400 hover:text-white transition-colors text-sm">About Us</Link></li>
+              <li><Link href="/services" className="text-slate-400 hover:text-white transition-colors text-sm">Services</Link></li>
+              <li><Link href="/credibility-interview-test" className="text-slate-400 hover:text-white transition-colors text-sm">Credibility Interview Test</Link></li>
+              <li><Link href="/contact" className="text-slate-400 hover:text-white transition-colors text-sm">Contact</Link></li>
               <li><Link href="/portal" className="text-slate-400 hover:text-white transition-colors text-sm">Login</Link></li>
             </ul>
           </div>
@@ -55,17 +55,17 @@ export default function Footer() {
           <div>
             <h3 className="text-white font-semibold mb-6">Our Services</h3>
             <ul className="space-y-3">
-              <li><Link href="#" className="text-slate-400 hover:text-white transition-colors text-sm">University Selection</Link></li>
-              <li><Link href="#" className="text-slate-400 hover:text-white transition-colors text-sm">Course Selection</Link></li>
-              <li><Link href="#" className="text-slate-400 hover:text-white transition-colors text-sm">Education Finance</Link></li>
-              <li><Link href="#" className="text-slate-400 hover:text-white transition-colors text-sm">Accommodation</Link></li>
-              <li><Link href="#" className="text-slate-400 hover:text-white transition-colors text-sm">Pre-Departure Support</Link></li>
-              <li><Link href="#" className="text-slate-400 hover:text-white transition-colors text-sm">Visa & Documentation</Link></li>
+              <li><Link href="/services" className="text-slate-400 hover:text-white transition-colors text-sm">University Selection</Link></li>
+              <li><Link href="/services" className="text-slate-400 hover:text-white transition-colors text-sm">Course Selection</Link></li>
+              <li><Link href="/services" className="text-slate-400 hover:text-white transition-colors text-sm">Education Finance</Link></li>
+              <li><Link href="/services" className="text-slate-400 hover:text-white transition-colors text-sm">Accommodation</Link></li>
+              <li><Link href="/services" className="text-slate-400 hover:text-white transition-colors text-sm">Pre-Departure Support</Link></li>
+              <li><Link href="/services" className="text-slate-400 hover:text-white transition-colors text-sm">Visa & Documentation</Link></li>
             </ul>
           </div>
 
           {/* Contact Us */}
-          <div>
+          <div id="contact">
             <h3 className="text-white font-semibold mb-6">Contact Us</h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-3 text-slate-400 text-sm">
