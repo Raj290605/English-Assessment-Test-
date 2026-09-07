@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/services/authService';
 import { prisma } from '@/lib/prisma';
-import { Role, AssessmentStatus } from '@prisma/client';
+import { Role, AssessmentStatus, EnquiryStatus } from '@prisma/client';
 
 export async function GET() {
   try {
@@ -16,6 +16,7 @@ export async function GET() {
       pendingReviewCount,
       evaluatedCount,
       inProgressCount,
+      newEnquiriesCount,
     ] = await Promise.all([
       // Total registered students (non-admin users)
       prisma.user.count({ where: { role: Role.STUDENT } }),
@@ -39,6 +40,9 @@ export async function GET() {
           },
         },
       }),
+
+      // New enquiries from contact form
+      prisma.enquiry.count({ where: { status: EnquiryStatus.NEW } }),
     ]);
 
     // ── Pending evaluation list (up to 5) ──────────────────────────────────
@@ -171,6 +175,7 @@ export async function GET() {
       pendingReview: pendingReviewCount,
       evaluated: evaluatedCount,
       inProgress: inProgressCount,
+      newEnquiries: newEnquiriesCount,
       pendingList,
       recentActivity,
     });

@@ -3,6 +3,7 @@ import { getSession, hashPassword } from '@/lib/services/authService';
 import { encryptPassword } from '@/lib/services/cryptoService';
 import { prisma } from '@/lib/prisma';
 import { Role } from '@prisma/client';
+import { sendStudentCredentialsEmail } from '@/lib/email';
 
 export async function POST(request: Request) {
   try {
@@ -12,16 +13,17 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, studentId, password, questionSetId } = body;
+    const { name, studentId, password, questionSetId, email } = body;
 
     const cleanName = name ? name.trim() : '';
     const cleanStudentId = studentId ? studentId.trim() : '';
     const cleanPassword = password ? password.trim() : '';
     const cleanQuestionSetId = questionSetId ? questionSetId.trim() : '';
+    const cleanEmail = email ? email.trim() : '';
 
-    if (!cleanName || !cleanStudentId || !cleanPassword || !cleanQuestionSetId) {
+    if (!cleanName || !cleanStudentId || !cleanPassword || !cleanQuestionSetId || !cleanEmail) {
       return NextResponse.json(
-        { error: 'Student Name, Login ID, Password, and Question Set are all required.' },
+        { error: 'Student Name, Login ID, Password, Question Set, and Email Address are all required.' },
         { status: 400 }
       );
     }
@@ -69,6 +71,7 @@ export async function POST(request: Request) {
         studentId: cleanStudentId,
         passwordHash: hashedPassword,
         encryptedPassword: encryptedPwd,
+        email: cleanEmail,
         questionSetId: cleanQuestionSetId,
         role: Role.STUDENT,
       },
@@ -76,15 +79,40 @@ export async function POST(request: Request) {
         id: true,
         studentId: true,
         name: true,
+        email: true,
         role: true,
         createdAt: true,
       },
     });
 
+    // Send Email with credentials
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://skillsoftoverseaseducation.com';
+    const loginUrl = `${appUrl}/login`;
+    
+    const emailResult = await sendStudentCredentialsEmail({
+      name: cleanName,
+      email: cleanEmail,
+      loginId: cleanStudentId,
+      temporaryPassword: cleanPassword,
+      loginUrl,
+    });
+
+    if (!emailResult.success) {
+      return NextResponse.json(
+        {
+          message: 'Student created successfully, but the credential email could not be delivered. ' + (emailResult.error || ''),
+          student: newStudent,
+          emailStatus: 'failed'
+        },
+        { status: 201 }
+      );
+    }
+
     return NextResponse.json(
       {
-        message: 'Student created successfully.',
+        message: 'Student created successfully. Login credentials were sent to their email.',
         student: newStudent,
+        emailStatus: 'success'
       },
       { status: 201 }
     );

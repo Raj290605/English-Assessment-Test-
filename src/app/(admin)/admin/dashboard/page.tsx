@@ -13,6 +13,7 @@ import {
   Users,
   ChevronDown,
   Shield,
+  MessageSquare,
 } from 'lucide-react';
 import { AdminDashboardShell } from '@/components/admin/AdminDashboardShell';
 import { CreateStudentModal } from '@/components/admin/CreateStudentModal';
@@ -25,6 +26,7 @@ interface DashboardStats {
   pendingReview: number;
   evaluated: number;
   inProgress: number;
+  newEnquiries: number;
   pendingList: PendingItem[];
   recentActivity: ActivityItem[];
 }
@@ -331,7 +333,7 @@ export default function AdminDashboardPage() {
 
       {/* ── Status Strip ─────────────────────────────────────────────────── */}
       <div className="bg-white border border-slate-200 rounded-xl px-6 py-4 mb-6 shadow-sm">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
           {/* Students */}
           <div className="flex flex-col gap-0.5 sm:border-r sm:border-slate-100 sm:pr-4">
             <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
@@ -370,6 +372,17 @@ export default function AdminDashboardPage() {
             </span>
             <span className="text-[22px] font-bold text-slate-900 font-mono leading-none">
               {s?.inProgress ?? '—'}
+            </span>
+          </div>
+
+          {/* New Enquiries */}
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" />
+              New Enquiries
+            </span>
+            <span className={`text-[22px] font-bold font-mono leading-none ${(s?.newEnquiries ?? 0) > 0 ? 'text-blue-600' : 'text-slate-900'}`}>
+              {s?.newEnquiries ?? '—'}
             </span>
           </div>
         </div>
@@ -576,6 +589,15 @@ export default function AdminDashboardPage() {
           >
             <Users className="w-4 h-4 text-slate-500" />
             Manage Students
+            <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+          </Link>
+
+          <Link
+            href="/admin/enquiries"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[13px] font-semibold transition-colors"
+          >
+            <MessageSquare className="w-4 h-4 text-slate-500" />
+            View Enquiries
             <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
           </Link>
         </div>

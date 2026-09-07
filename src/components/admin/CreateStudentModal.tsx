@@ -12,6 +12,7 @@ interface CreateStudentModalProps {
 export function CreateStudentModal({ isOpen, onClose, onSuccess }: CreateStudentModalProps) {
   const [name, setName] = useState('');
   const [studentId, setStudentId] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [questionSetId, setQuestionSetId] = useState('');
   const [questionSets, setQuestionSets] = useState<{ id: string, name: string }[]>([]);
@@ -41,6 +42,7 @@ export function CreateStudentModal({ isOpen, onClose, onSuccess }: CreateStudent
   const resetForm = () => {
     setName('');
     setStudentId('');
+    setEmail('');
     setPassword('');
     if (questionSets.length > 0) setQuestionSetId(questionSets[0].id);
     setError(null);
@@ -57,8 +59,8 @@ export function CreateStudentModal({ isOpen, onClose, onSuccess }: CreateStudent
     setError(null);
     setSuccess(null);
 
-    if (!name.trim() || !studentId.trim() || !password.trim() || !questionSetId) {
-      setError('Please fill in all required fields.');
+    if (!name.trim() || !studentId.trim() || !password.trim() || !questionSetId || !email.trim()) {
+      setError('Please fill in all required fields including Email Address.');
       return;
     }
 
@@ -71,6 +73,7 @@ export function CreateStudentModal({ isOpen, onClose, onSuccess }: CreateStudent
         body: JSON.stringify({
           name: name.trim(),
           studentId: studentId.trim(),
+          email: email.trim(),
           password: password.trim(),
           questionSetId,
         }),
@@ -82,7 +85,11 @@ export function CreateStudentModal({ isOpen, onClose, onSuccess }: CreateStudent
         throw new Error(data.error || 'Failed to create student');
       }
 
-      setSuccess(`Student "${data.student?.name}" created successfully!`);
+      if (data.emailStatus === 'failed') {
+        setSuccess(`Student "${data.student?.name}" created successfully, but email delivery failed.`);
+      } else {
+        setSuccess(data.message || `Student "${data.student?.name}" created successfully!`);
+      }
       setTimeout(() => {
         resetForm();
         onSuccess();
@@ -167,6 +174,22 @@ export function CreateStudentModal({ isOpen, onClose, onSuccess }: CreateStudent
                 onChange={(e) => setStudentId(e.target.value)}
                 placeholder="e.g. STU102 or rahul@example.com"
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-emerald-500 font-mono transition-colors"
+              />
+            </div>
+          </div>
+
+          {/* Email Address */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-slate-700">Email Address <span className="text-slate-500 font-normal">(Login credentials will be sent to this email address)</span></label>
+            <div className="relative">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-medium text-sm">@</span>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="student@example.com"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
               />
             </div>
           </div>

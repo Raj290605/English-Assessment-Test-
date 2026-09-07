@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -12,6 +12,7 @@ import {
   LogOut,
   ShieldCheck,
   BookOpen,
+  MessageSquare,
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -27,6 +28,7 @@ interface AdminSidebarProps {
 const mainNavItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/admin/dashboard' },
   { icon: Users, label: 'Students', href: '/admin/students' },
+  { icon: MessageSquare, label: 'Enquiries', href: '/admin/enquiries' },
   { icon: ClipboardList, label: 'Assessments', href: '/admin/assessments' },
   { icon: ShieldCheck, label: 'Account Management', href: '/admin/accounts' },
 ];
@@ -34,6 +36,16 @@ const mainNavItems = [
 export function AdminSidebar({ user, isOpen, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const [newEnquiryCount, setNewEnquiryCount] = useState(0);
+
+  useEffect(() => {
+    fetch('/api/admin/dashboard-stats')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.newEnquiries != null) setNewEnquiryCount(data.newEnquiries);
+      })
+      .catch(() => {});
+  }, []);
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
@@ -45,11 +57,13 @@ export function AdminSidebar({ user, isOpen, onClose }: AdminSidebarProps) {
     if (label === 'Dashboard') return pathname === '/admin/dashboard';
     if (label === 'Students') return pathname.startsWith('/admin/students');
     if (label === 'Assessments') return pathname.startsWith('/admin/assessments');
+    if (label === 'Enquiries') return pathname.startsWith('/admin/enquiries');
     return pathname.startsWith(href);
   };
 
   const renderNavItem = (item: (typeof mainNavItems)[number]) => {
     const active = isActive(item.href, item.label);
+    const showBadge = item.label === 'Enquiries' && newEnquiryCount > 0;
     return (
       <Link
         key={item.label}
@@ -65,6 +79,11 @@ export function AdminSidebar({ user, isOpen, onClose }: AdminSidebarProps) {
           className={`w-4 h-4 shrink-0 ${active ? 'text-white' : 'text-slate-400'}`}
         />
         {item.label}
+        {showBadge && (
+          <span className="ml-auto inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-blue-500 text-white text-[10px] font-bold leading-none">
+            {newEnquiryCount > 99 ? '99+' : newEnquiryCount}
+          </span>
+        )}
       </Link>
     );
   };
