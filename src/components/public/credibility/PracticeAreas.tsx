@@ -49,14 +49,11 @@ export default function PracticeAreas() {
             className="relative"
           >
             <div className="aspect-square rounded-[2.5rem] bg-slate-200 overflow-hidden relative shadow-2xl border border-slate-100 group">
-               <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-100 group-hover:bg-slate-200 transition-colors duration-500">
-                  <svg className="w-16 h-16 mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                  </svg>
-                  <span className="text-lg font-medium tracking-widest uppercase text-center px-4">
-                    Practice Visual
-                  </span>
-                </div>
+               <img 
+                 src="/images/practice_visual.jpg" 
+                 alt="Student practicing interview" 
+                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+               />
             </div>
             {/* Ambient blur */}
             <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-yellow-500/10 blur-[80px] rounded-full pointer-events-none" />

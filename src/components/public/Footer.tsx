@@ -70,15 +70,19 @@ export default function Footer() {
             <ul className="space-y-4">
               <li className="flex items-start gap-3 text-slate-400 text-sm">
                 <Phone className="w-5 h-5 text-slate-500 shrink-0" />
-                <span>+91 98765 43210</span>
+                <span>+91 9820109494, +91 9653176122</span>
               </li>
               <li className="flex items-start gap-3 text-slate-400 text-sm">
                 <Mail className="w-5 h-5 text-slate-500 shrink-0" />
-                <span>info@skillsoftedu.com</span>
+                <span>samir@skillsoftoverseas.com</span>
               </li>
               <li className="flex items-start gap-3 text-slate-400 text-sm">
                 <MapPin className="w-5 h-5 text-slate-500 shrink-0" />
-                <span className="leading-relaxed">New Delhi, India</span>
+                <span className="leading-relaxed">
+                  Shop no. 13, Sai Sthaan CHS Ltd, Plot no. 4,5,6, <br />
+                  Opp Cidco office, Nerul East, Navi Mumbai, <br />
+                  Maharashtra, India – 400706.
+                </span>
               </li>
             </ul>
           </div>

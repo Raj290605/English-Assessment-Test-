@@ -78,8 +78,8 @@ export default function CredibilityInterviewPreview() {
                 {/* Platform Preview Image with Dark Video Overlay */}
                 <div className="absolute inset-0 pt-10 bg-slate-950">
                   <img 
-                    src="/platform-preview.png" 
-                    alt="Credibility Interview Platform Preview" 
+                    src="/images/generic_video_thumbnail.jpg" 
+                    alt="Credibility Interview Video Thumbnail" 
                     className="w-full h-full object-cover opacity-35 group-hover:scale-105 transition-transform duration-500"
                   />
                 </div>
@@ -90,7 +90,7 @@ export default function CredibilityInterviewPreview() {
                     <Play className="w-7 h-7 ml-1" fill="currentColor" />
                   </div>
                   <span className="text-white font-bold text-base drop-shadow-md">
-                    Watch Official Pre-CAS Guidance Video
+                    Watch Pre-CAS Guidance Video
                   </span>
                   <span className="text-slate-300 text-xs mt-1">
                     Click to watch video walkthrough

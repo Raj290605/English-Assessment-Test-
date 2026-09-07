@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, Phone, Send, Loader2, CheckCircle2 } from "lucide-react";
+import { Send, Loader2, CheckCircle2 } from "lucide-react";
 
 export default function ContactLayout() {
   const [formState, setFormState] = useState<"idle" | "submitting" | "success" | "error">("idle");
@@ -23,63 +23,30 @@ export default function ContactLayout() {
   };
 
   return (
-    <section className="py-24 bg-white relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-24 bg-slate-50 relative overflow-hidden">
+      {/* Decorative background blobs */}
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-400/10 blur-[100px] rounded-full pointer-events-none -translate-y-1/2" />
+      <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-yellow-400/10 blur-[100px] rounded-full pointer-events-none translate-y-1/2" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        <div className="grid lg:grid-cols-5 gap-16 lg:gap-24">
+        <div className="max-w-3xl mx-auto">
           
-          {/* Left Column: Contact Information */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="lg:col-span-2 flex flex-col justify-center"
-          >
-            <h2 className="text-3xl font-bold text-slate-900 mb-8">
-              Reach Out
-            </h2>
-            
-            <div className="space-y-10">
-              <div className="flex items-start gap-5 group">
-                <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
-                  <Mail className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-2">
-                    Email
-                  </h3>
-                  <a href="#" className="text-lg text-slate-600 hover:text-blue-600 transition-colors">
-                    Company Email
-                  </a>
-                </div>
-              </div>
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-slate-900 mb-4 tracking-tight">Let's Get in Touch</h2>
+            <p className="text-lg text-slate-600 max-w-xl mx-auto">
+              Have questions about your overseas education journey? Fill out the form below and our experts will reach out to you.
+            </p>
+          </div>
 
-              <div className="flex items-start gap-5 group">
-                <div className="w-12 h-12 rounded-2xl bg-yellow-50 text-yellow-600 flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:bg-yellow-500 group-hover:text-slate-900 transition-all duration-300">
-                  <Phone className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-2">
-                    Phone
-                  </h3>
-                  <a href="#" className="text-lg text-slate-600 hover:text-yellow-600 transition-colors">
-                    Company Phone
-                  </a>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Right Column: Contact Form */}
+          {/* Contact Form */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="lg:col-span-3"
+            transition={{ duration: 0.8 }}
           >
-            <div className="bg-white rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/50 p-8 sm:p-12 relative overflow-hidden">
+            <div className="bg-white/80 backdrop-blur-xl rounded-3xl border border-white shadow-2xl shadow-blue-900/5 p-8 sm:p-12 relative overflow-hidden ring-1 ring-slate-100">
               
               {/* Form Success State Overlay */}
               {formState === "success" && (
@@ -105,7 +72,6 @@ export default function ContactLayout() {
                       id="name" 
                       required
                       className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
-                      placeholder="John Doe"
                     />
                   </div>
                   <div className="space-y-2">
@@ -115,7 +81,6 @@ export default function ContactLayout() {
                       id="email" 
                       required
                       className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
-                      placeholder="john@example.com"
                     />
                   </div>
                 </div>
@@ -127,7 +92,6 @@ export default function ContactLayout() {
                       type="tel" 
                       id="phone" 
                       className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
-                      placeholder="+1 (555) 000-0000"
                     />
                   </div>
                   <div className="space-y-2">
@@ -137,7 +101,6 @@ export default function ContactLayout() {
                       id="subject"
                       required 
                       className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
-                      placeholder="How can we help you?"
                     />
                   </div>
                 </div>
@@ -149,7 +112,6 @@ export default function ContactLayout() {
                     rows={5}
                     required
                     className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-none"
-                    placeholder="Tell us a bit more about what you're looking for..."
                   ></textarea>
                 </div>
 
