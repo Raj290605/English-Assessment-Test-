@@ -30,8 +30,8 @@ export function Navbar({ user }: NavbarProps) {
             <Mic className="w-5 h-5 text-white" />
           </div>
           <div>
-            <span className="font-bold text-lg text-slate-900 tracking-tight">English Assessment</span>
-            <span className="block text-xs text-slate-500 font-medium">Speaking Evaluation Portal</span>
+            <span className="font-bold text-lg text-slate-900 tracking-tight">SOE Mock Interview</span>
+            <span className="block text-xs text-slate-500 font-medium">Preparation & Assessment Portal</span>
           </div>
         </Link>
 

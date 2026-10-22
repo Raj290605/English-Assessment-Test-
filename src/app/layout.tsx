@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'English Assessment Platform',
-  description: 'Modern English Speaking Assessment Platform',
+  title: 'SOE Mock Interview',
+  description: 'SOE Mock Interview Platform',
 };
 
 export default function RootLayout({
